@@ -1,0 +1,6 @@
+[
+  { "id": "c001", "nombre": "Laptops" },
+  { "id": "c002", "nombre": "PCs de escritorio" },
+  { "id": "c003", "nombre": "Perifericos" },
+  { "id": "c004", "nombre": "Componentes" }
+]
