@@ -3,7 +3,7 @@
  import Footer from "../components/Footer"
  import { Outlet } from "react-router-dom";
 
-export default function Testpage(){
+export default function Layout_global(){
     return(
         <>
         <Navbar/>
