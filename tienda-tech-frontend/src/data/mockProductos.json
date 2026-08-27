@@ -1,0 +1,62 @@
+[
+  {
+    "id": "p001",
+    "nombre": "Laptop Lenovo IdeaPad 3",
+    "categoriaId": "c001",
+    "precio": 2499.90,
+    "stock": 12,
+    "imagenes": ["/img/laptop-lenovo-ideapad3.jpg"],
+    "descripcion": "Laptop ligera para uso diario y estudio, buena autonomia de bateria.",
+    "specs": { "procesador": "AMD Ryzen 5 5500U", "ram": "8GB", "almacenamiento": "512GB SSD", "pantalla": "15.6 pulgadas FHD" }
+  },
+  {
+    "id": "p002",
+    "nombre": "Laptop ASUS ROG Strix G16",
+    "categoriaId": "c001",
+    "precio": 6899.00,
+    "stock": 5,
+    "imagenes": ["/img/laptop-asus-rog.jpg"],
+    "descripcion": "Laptop gamer de alto rendimiento con tarjeta grafica dedicada.",
+    "specs": { "procesador": "Intel Core i7-13650HX", "ram": "16GB", "almacenamiento": "1TB SSD", "gpu": "RTX 4060" }
+  },
+  {
+    "id": "p003",
+    "nombre": "PC de escritorio HP Pavilion",
+    "categoriaId": "c002",
+    "precio": 3199.00,
+    "stock": 8,
+    "imagenes": ["/img/pc-hp-pavilion.jpg"],
+    "descripcion": "PC de escritorio para oficina y uso multimedia.",
+    "specs": { "procesador": "Intel Core i5-13400", "ram": "16GB", "almacenamiento": "512GB SSD" }
+  },
+  {
+    "id": "p004",
+    "nombre": "Mouse inalambrico Logitech M170",
+    "categoriaId": "c003",
+    "precio": 39.90,
+    "stock": 50,
+    "imagenes": ["/img/mouse-logitech-m170.jpg"],
+    "descripcion": "Mouse inalambrico compacto, ideal para uso diario.",
+    "specs": { "conexion": "USB inalambrico", "dpi": "1000" }
+  },
+  {
+    "id": "p005",
+    "nombre": "Teclado mecanico Redragon Kumara",
+    "categoriaId": "c003",
+    "precio": 129.90,
+    "stock": 20,
+    "imagenes": ["/img/teclado-redragon-kumara.jpg"],
+    "descripcion": "Teclado mecanico compacto con retroiluminacion.",
+    "specs": { "switches": "Blue", "conexion": "USB" }
+  },
+  {
+    "id": "p006",
+    "nombre": "Memoria RAM Kingston Fury 16GB",
+    "categoriaId": "c004",
+    "precio": 219.00,
+    "stock": 30,
+    "imagenes": ["/img/ram-kingston-fury.jpg"],
+    "descripcion": "Memoria RAM DDR4 para actualizar tu PC.",
+    "specs": { "capacidad": "16GB", "tipo": "DDR4", "velocidad": "3200MHz" }
+  }
+]
