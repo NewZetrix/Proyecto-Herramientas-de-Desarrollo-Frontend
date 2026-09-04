@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { listarUsuarios } from "../../services/authService";
+import { listarUsuarios,cambiarRolOEstado } from "../../services/authService";
+
 
 export default function UsuariosPage() {
     const [usuarios, setUsuarios] = useState([]);
