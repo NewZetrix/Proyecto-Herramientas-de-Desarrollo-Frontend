@@ -18,6 +18,7 @@ export default function UsuariosPage() {
                             <th className="px-4 py-3 text-left text-xs font-medium text-brand-600 uppercase tracking-wide">Correo</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-brand-600 uppercase tracking-wide">Rol</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-brand-600 uppercase tracking-wide">Estado</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-brand-600 uppercase tracking-wide">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-brand-50 bg-surface-card">
@@ -27,19 +28,27 @@ export default function UsuariosPage() {
                                 <td className="px-4 py-3 text-sm text-brand-600">{u.correo}</td>
                                 <td className="px-4 py-3">
                                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${u.rol == "admin"
-                                            ? "bg-brand-600 text-white"
-                                            : "bg-brand-100 text-brand-700"
+                                        ? "bg-brand-600 text-white"
+                                        : "bg-brand-100 text-brand-700"
                                         }`}>
                                         {u.rol}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${u.estado == "activo"
-                                            ? "bg-accent-500 text-white"
-                                            : "bg-slate-200 text-slate-600"
+                                        ? "bg-accent-500 text-white"
+                                        : "bg-slate-200 text-slate-600"
                                         }`}>
                                         {u.estado}
                                     </span>
+                                </td>
+                                <td className="px-4 py-3 space-x-2">
+                                    <button className="text-xs font-medium text-brand-600 hover:text-brand-800">
+                                        Cambiar rol
+                                    </button>
+                                    <button className="text-xs font-medium text-brand-600 hover:text-brand-800">
+                                        {u.estado === "activo" ? "Desactivar" : "Activar"}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
