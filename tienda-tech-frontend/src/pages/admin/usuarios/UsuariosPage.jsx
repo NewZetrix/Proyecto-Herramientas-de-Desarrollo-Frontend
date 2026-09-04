@@ -20,6 +20,16 @@ export default function UsuariosPage() {
         cambiarRolOEstado(usuario.id, { rol: nuevoRol });
         setUsuarios(listarUsuarios());
     };
+    
+    const handleEliminar = (usuario) => {
+        const confirmar = window.confirm(
+            `¿Seguro que quieres eliminar a ${usuario.nombre}? Esta acción no se puede deshacer.`
+        );
+        if (!confirmar) return;
+
+        eliminarUsuario(usuario.id);
+        setUsuarios(listarUsuarios());
+    };
     return (
         <div className="p-6 max-w-5xl mx-auto bg-surface min-h-screen">
             <h1 className="font-heading text-2xl font-semibold text-brand-800 mb-6">Administración de usuarios</h1>
