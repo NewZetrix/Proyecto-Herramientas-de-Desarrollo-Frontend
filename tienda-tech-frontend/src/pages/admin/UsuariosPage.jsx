@@ -14,6 +14,12 @@ export default function UsuariosPage() {
         cambiarRolOEstado(usuario.id, { estado: nuevoEstado });
         setUsuarios(listarUsuarios());
     };
+
+    const handleToggleRol = (usuario) => {
+        const nuevoRol = usuario.rol === "admin" ? "cliente" : "admin";
+        cambiarRolOEstado(usuario.id, { rol: nuevoRol });
+        setUsuarios(listarUsuarios());
+    };
     return (
         <div className="p-6 max-w-5xl mx-auto bg-surface min-h-screen">
             <h1 className="font-heading text-2xl font-semibold text-brand-800 mb-6">Administración de usuarios</h1>
@@ -50,10 +56,12 @@ export default function UsuariosPage() {
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 space-x-2">
-                                    <button className="text-xs font-medium text-brand-600 hover:text-brand-800">
+                                    <button 
+                                        onClick={() => handleToggleRol(u)}
+                                        className="text-xs font-medium text-brand-600 hover:text-brand-800">
                                         Cambiar rol
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => handleToggleEstado(u)}
                                         className="text-xs font-medium text-brand-600 hover:text-brand-800">
                                         {u.estado === "activo" ? "Desactivar" : "Activar"}
