@@ -77,7 +77,7 @@ export default function CheckoutPage() {
             placeholder="Av. Siempre Viva 123, Lima"
             required
           />
-          
+
           <div>
             <label className="field-label" htmlFor="metodoPago">
               Método de pago
@@ -97,7 +97,30 @@ export default function CheckoutPage() {
             </select>
           </div>
 
+          <Button type="submit" className="w-full">
+            Confirmar pedido
+          </Button>
+        </form>
 
+        <div className="card h-fit p-6">
+          <h2 className="text-lg">Resumen del pedido</h2>
+          <ul className="mt-4 space-y-2 text-sm text-slate-600">
+            {items.map((i) => (
+              <li key={i.id} className="flex justify-between gap-2">
+                <span>
+                  {i.producto.nombre} × {i.cantidad}
+                </span>
+                <span className="shrink-0">S/ {(i.producto.precio * i.cantidad).toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex justify-between border-t border-slate-200 pt-4 text-lg font-semibold text-brand-800">
+            <span>Total</span>
+            <span>S/ {total.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
 
