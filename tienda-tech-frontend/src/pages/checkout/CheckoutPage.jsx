@@ -62,5 +62,26 @@ export default function CheckoutPage() {
     navigate("/pedido/confirmacion", { state: { pedidoId: pedido.id } });
   };
 
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl">Finalizar compra</h1>
 
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
+        <form onSubmit={handleSubmit} className="card space-y-5 p-6" noValidate>
+          <FormField
+            label="Dirección de envío"
+            name="direccion"
+            value={form.direccion}
+            onChange={handleChange}
+            error={error}
+            placeholder="Av. Siempre Viva 123, Lima"
+            required
+          />
+
+          
+
+
+
+
+  );
 }
