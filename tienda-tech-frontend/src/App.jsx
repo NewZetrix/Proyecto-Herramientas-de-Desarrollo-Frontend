@@ -28,8 +28,16 @@ export default function App() {
             <AdminHomePage />
           </ProtectedRoute>
         } />
-        <Route path="/listado-usuario" element={<UsuariosPage />} />
-        <Route path="/listado-pedido" element={<PedidosPage />} />
+        <Route path="/listado-usuario" element={
+          <ProtectedRoute rolRequerido="admin">
+            <UsuariosPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/listado-pedido" element={
+          <ProtectedRoute rolRequerido="admin">
+            <PedidosPage />
+          </ProtectedRoute>
+        } />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
