@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { listarPedidos } from "../../../services/pedidosService";
 import { listarUsuarios } from "../../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 export default function PedidosPage() {
     const [pedidos, setPedidos] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         setPedidos(listarPedidos());
@@ -42,7 +44,9 @@ export default function PedidosPage() {
                                     </span>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <button className="text-xs font-medium text-brand-600 hover:text-brand-800">
+                                    <button 
+                                        onClick={() => navigate(`/admin/pedidos/${p.id}`)}
+                                        className="text-xs font-medium text-brand-600 hover:text-brand-800">
                                         Ver detalle
                                     </button>
                                 </td>
