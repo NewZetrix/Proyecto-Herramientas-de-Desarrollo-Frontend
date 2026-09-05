@@ -23,10 +23,15 @@ export default function CarritoPage() {
     if (nuevaCantidad < 1) return;
     setCarrito(cambiarCantidad(productoId, nuevaCantidad));
   };
-  
+
   const handleQuitar = (productoId) => {
     setCarrito(quitarDelCarrito(productoId));
   };
 
+  const handleVaciar = () => {
+    vaciarCarrito();
+    setCarrito([]);
+  };
 
+  
 }
