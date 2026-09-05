@@ -20,7 +20,7 @@ export default function UsuariosPage() {
         cambiarRolOEstado(usuario.id, { rol: nuevoRol });
         setUsuarios(listarUsuarios());
     };
-    
+
     const handleEliminar = (usuario) => {
         const confirmar = window.confirm(
             `¿Seguro que quieres eliminar a ${usuario.nombre}? Esta acción no se puede deshacer.`
@@ -33,6 +33,9 @@ export default function UsuariosPage() {
     return (
         <div className="p-6 max-w-5xl mx-auto bg-surface min-h-screen">
             <h1 className="font-heading text-2xl font-semibold text-brand-800 mb-6">Administración de usuarios</h1>
+            <a href="/admin" className="inline-block mb-4 text-sm font-medium text-brand-600 hover:text-brand-800">
+                ← Volver al panel
+            </a>
             <div className="overflow-x-auto rounded-lg border border-brand-100 bg-surface-card">
                 <table className="min-w-full divide-y divide-brand-100 font-body">
                     <thead className="bg-brand-50">
