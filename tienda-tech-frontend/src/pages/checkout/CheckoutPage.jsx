@@ -77,8 +77,26 @@ export default function CheckoutPage() {
             placeholder="Av. Siempre Viva 123, Lima"
             required
           />
-
           
+          <div>
+            <label className="field-label" htmlFor="metodoPago">
+              Método de pago
+            </label>
+            <select
+              id="metodoPago"
+              name="metodoPago"
+              value={form.metodoPago}
+              onChange={handleChange}
+              className="field-input"
+            >
+              {METODOS_PAGO.map((metodo) => (
+                <option key={metodo} value={metodo}>
+                  {metodo}
+                </option>
+              ))}
+            </select>
+          </div>
+
 
 
 
