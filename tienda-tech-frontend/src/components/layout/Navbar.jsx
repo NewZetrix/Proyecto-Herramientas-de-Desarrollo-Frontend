@@ -1,16 +1,15 @@
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { usuarioActual, cerrarSesion } from "../../services/authService";
 
-// RF-48: menu de navegacion principal.
-// Cambia su contenido segun si hay sesion activa y segun el rol (cliente/admin).
 export default function Navbar() {
   const navigate = useNavigate();
-  // useLocation fuerza el re-render del Navbar en cada cambio de ruta,
-  // que es cuando puede haber cambiado la sesion (login/logout/registro).
-  // localStorage no es reactivo por si solo, por eso leemos usuarioActual()
-  // directo en el render en vez de guardarlo en un useState + useEffect.
-  useLocation();
+  const location = useLocation();
   const usuario = usuarioActual();
+
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
   const handleLogout = () => {
     cerrarSesion();
@@ -36,6 +35,11 @@ export default function Navbar() {
               Panel admin
             </Link>
           )}
+          {usuario && (
+            <Link to="/perfil" className="text-sm font-medium text-slate-600 hover:text-brand-700">
+              Perfil
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -44,9 +48,48 @@ export default function Navbar() {
               <span className="hidden text-sm text-slate-600 sm:inline">
                 Hola, {usuario.nombre.split(" ")[0]}
               </span>
-              <button onClick={handleLogout} className="btn-ghost">
-                Cerrar sesión
-              </button>
+              <div className="relative">
+                <button
+                  onClick={handleDropdownToggle}
+                  className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-lg px-2 py-1.5 bg-white border border-slate-200"
+                >
+                  Mi cuenta
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
+                {showDropdown && (
+                  <div
+                    className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-2 min-w max-w-xs z-20"
+                  >
+                    <Link to="/perfil" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                      Perfil
+                    </Link>
+                    <Link to="/editar-perfil" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                      Editar perfil
+                    </Link>
+                    <Link to="/cambiar-password" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                      Cambiar contraseña
+                    </Link>
+                    <Link to="/historial-pedidos" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                      Historial de pedidos
+                    </Link>
+                    <hr className="my-1 border-t border-slate-200" />
+                    <button onClick={handleLogout} className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+              <span className="hidden text-sm text-slate-600 sm:inline">
+                Hola, {usuario.nombre.split(" ")[0]}
+              </span>
             </>
           ) : (
             <>
