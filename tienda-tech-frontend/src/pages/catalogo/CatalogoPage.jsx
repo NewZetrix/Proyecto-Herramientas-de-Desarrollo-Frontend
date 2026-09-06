@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { buscarProductos } from "../../services/productosService";
 import { listarCategorias } from "../../services/categoriasService";
 import ProductCard from "../../components/productos/ProductCard";
+import ProductSort from "../../components/productos/ProductSort";
 
 // RF-08: mostrar el listado de productos disponibles.
 // RF-09: filtrar productos por categoria.
@@ -19,15 +20,39 @@ export default function CatalogoPage() {
   const categoriaId = searchParams.get("categoria") ?? "";
   const [precioMax, setPrecioMax] = useState("");
 
+  
+  const [orden, setOrden] = useState("relevancia");
+
   const productos = useMemo(
-    () =>
-      buscarProductos({
+    () => {
+      const resultado = buscarProductos({
         texto: texto.trim() || undefined,
         categoriaId: categoriaId || undefined,
         precioMax: precioMax ? Number(precioMax) : undefined,
-      }),
-    [texto, categoriaId, precioMax]
-  );
+      });
+
+      switch (orden) {
+        case "precioAsc":
+          return [...resultado].sort((a, b) => a.precio - b.precio);
+
+        case "precioDesc":
+          return [...resultado].sort((a, b) => b.precio - a.precio);
+
+        case "nombreAsc":
+          return [...resultado].sort((a, b) =>
+            a.nombre.localeCompare(b.nombre)
+          );
+
+        case "nombreDesc":
+          return [...resultado].sort((a, b) =>
+            b.nombre.localeCompare(a.nombre)
+          );
+
+        case "relevancia":
+        default:
+          return resultado;
+      }
+    }, [texto, categoriaId, precioMax, orden]);
 
   const categoriaNombre = (id) => categorias.find((c) => c.id === id)?.nombre;
 
@@ -114,6 +139,13 @@ export default function CatalogoPage() {
         </aside>
 
         <div>
+          <div className="mb-4 flex justify-end">
+            <ProductSort
+              orden={orden}
+              onOrdenChange={setOrden}
+            />
+          </div>
+
           <p className="mb-4 text-sm text-slate-500">{productos.length} productos encontrados</p>
 
           {productos.length === 0 ? (
