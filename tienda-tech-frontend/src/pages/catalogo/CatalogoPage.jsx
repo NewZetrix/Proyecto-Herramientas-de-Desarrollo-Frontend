@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { buscarProductos } from "../../services/productosService";
 import { listarCategorias } from "../../services/categoriasService";
 import ProductCard from "../../components/productos/ProductCard";
 import ProductSort from "../../components/productos/ProductSort";
+import ProductPagination from "../../components/productos/ProductPagination";
 
 // RF-08: mostrar el listado de productos disponibles.
 // RF-09: filtrar productos por categoria.
@@ -22,6 +23,9 @@ export default function CatalogoPage() {
 
   
   const [orden, setOrden] = useState("relevancia");
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  const productosPorPagina = 4;
 
   const productos = useMemo(
     () => {
@@ -53,6 +57,17 @@ export default function CatalogoPage() {
           return resultado;
       }
     }, [texto, categoriaId, precioMax, orden]);
+
+  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
+
+  const indiceInicio = (paginaActual - 1) * productosPorPagina;
+  const indiceFin = indiceInicio + productosPorPagina;
+
+  const productosPagina = productos.slice(indiceInicio, indiceFin);
+
+  useEffect(() => {
+  setPaginaActual(1);
+  }, [texto, categoriaId, precioMax, orden]);
 
   const categoriaNombre = (id) => categorias.find((c) => c.id === id)?.nombre;
 
@@ -158,15 +173,23 @@ export default function CatalogoPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {productos.map((producto) => (
-                <ProductCard
-                  key={producto.id}
-                  producto={producto}
-                  categoriaNombre={categoriaNombre(producto.categoriaId)}
-                />
-              ))}
-            </div>
+            <> 
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {productosPagina.map((producto) => (
+                  <ProductCard
+                    key={producto.id}
+                    producto={producto}
+                    categoriaNombre={categoriaNombre(producto.categoriaId)}
+                  />
+                ))}
+              </div>
+
+              <ProductPagination
+                paginaActual={paginaActual}
+                totalPaginas={totalPaginas}
+                onPaginaChange={setPaginaActual}
+              />
+            </>
           )}
         </div>
       </div>
