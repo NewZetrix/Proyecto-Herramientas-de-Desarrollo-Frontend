@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { usuarioActual, cerrarSesion } from "../../services/authService";
+import { obtenerCarrito } from "../../services/carritoService";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const usuario = usuarioActual();
+  const cantidadCarrito = obtenerCarrito().reduce((acc, item) => acc + item.cantidad, 0);
 
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -43,6 +45,14 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link to="/carrito" className="btn-ghost relative">
+            Carrito
+            {cantidadCarrito > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent-500 text-[10px] font-semibold text-white">
+                {cantidadCarrito}
+              </span>
+            )}
+          </Link>
           {usuario ? (
             <>
               <span className="hidden text-sm text-slate-600 sm:inline">

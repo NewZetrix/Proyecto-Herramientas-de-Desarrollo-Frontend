@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import CatalogoPage from "./pages/catalogo/CatalogoPage";
@@ -12,6 +13,11 @@ import PerfilPage from "./pages/perfil/PerfilPage";
 import EditarPerfilPage from "./pages/perfil/EditarPerfilPage";
 import CambiarPasswordPage from "./pages/perfil/CambiarPasswordPage";
 import HistorialPedidosPage from "./pages/perfil/HistorialPedidosPage";
+import CarritoPage from "./pages/carrito/CarritoPage";
+import CheckoutPage from "./pages/checkout/CheckoutPage";
+import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
+import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
+
 
 // Rutas de cliente/admin protegidas (Carrito, Checkout, Perfil, Admin...)
 // se agregan en las siguientes ramas, envueltas en <ProtectedRoute>.
@@ -21,14 +27,21 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalogo" element={<CatalogoPage />} />
+        <Route path="/producto/:id" element={<ProductoDetallePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegistroPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
         <Route path="/reset-password" element={<RestablecerPasswordPage />} />
-          <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/editar-perfil" element={<EditarPerfilPage />} />
-          <Route path="/cambiar-password" element={<CambiarPasswordPage />} />
-          <Route path="/historial-pedidos" element={<HistorialPedidosPage />} />
+        <Route path="/perfil" element={<ProtectedRoute><PerfilPage /></ProtectedRoute>} />
+        <Route path="/editar-perfil" element={<ProtectedRoute><EditarPerfilPage /></ProtectedRoute>} />
+        <Route path="/cambiar-password" element={<ProtectedRoute><CambiarPasswordPage /></ProtectedRoute>} />
+        <Route path="/historial-pedidos" element={<ProtectedRoute><HistorialPedidosPage /></ProtectedRoute>} />
+        {/* ---- nuevas rutas de esta rama: feature/carrito-checkout ---- */}
+        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/checkout" element={ <ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+        <Route path="/pedido/confirmacion" element={ <ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
+
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
