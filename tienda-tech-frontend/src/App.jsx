@@ -11,6 +11,7 @@ import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage";
 import CarritoPage from "./pages/carrito/CarritoPage";
 import CheckoutPage from "./pages/checkout/CheckoutPage";
 import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
+import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
 
 
 // Rutas de cliente/admin protegidas (Carrito, Checkout, Perfil, Admin...)
@@ -21,6 +22,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalogo" element={<CatalogoPage />} />
+        <Route path="/producto/:id" element={<ProductoDetallePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegistroPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
