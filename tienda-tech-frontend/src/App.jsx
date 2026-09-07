@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import CatalogoPage from "./pages/catalogo/CatalogoPage";

@@ -78,16 +78,16 @@ export default function Navbar() {
                   <div
                     className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-2 min-w max-w-xs z-20"
                   >
-                    <Link to="/perfil" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/perfil" onClick={handleDropdownToggle} className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
                       Perfil
                     </Link>
-                    <Link to="/editar-perfil" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/editar-perfil" onClick={handleDropdownToggle} className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
                       Editar perfil
                     </Link>
-                    <Link to="/cambiar-password" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/cambiar-password" onClick={handleDropdownToggle} className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
                       Cambiar contraseña
                     </Link>
-                    <Link to="/historial-pedidos" className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/historial-pedidos" onClick={handleDropdownToggle} className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
                       Historial de pedidos
                     </Link>
                     <hr className="my-1 border-t border-slate-200" />
@@ -97,9 +97,6 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              <span className="hidden text-sm text-slate-600 sm:inline">
-                Hola, {usuario.nombre.split(" ")[0]}
-              </span>
             </>
           ) : (
             <>
