@@ -16,6 +16,7 @@ import CheckoutPage from "./pages/checkout/CheckoutPage";
 import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
 import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
 import PedidoDetallePage from "./pages/admin/pedidos/PedidoDetallePage";
+import DashboardPage from "./pages/admin/DashboardPage";
 
 // Rutas de cliente/admin protegidas (Carrito, Checkout, Perfil, Admin...)
 // se agregan en las siguientes ramas, envueltas en <ProtectedRoute>.
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/listado-usuario" element={<ProtectedRoute rolRequerido="admin"><UsuariosPage /></ProtectedRoute>} />
         <Route path="/listado-pedido" element={<ProtectedRoute rolRequerido="admin"><PedidosPage /></ProtectedRoute>} />
         <Route path="/detalle-pedido/:id" element={<ProtectedRoute rolRequerido="admin"><PedidoDetallePage/></ProtectedRoute>}/>
+        <Route path="/admin/dashboard" element={<ProtectedRoute rolRequerido="admin"><DashboardPage/></ProtectedRoute>}/>
         {/* ---- nuevas rutas de esta rama: feature/carrito-checkout ---- */}
         <Route path="/carrito" element={<CarritoPage />} />
         <Route path="/checkout" element={ <ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
