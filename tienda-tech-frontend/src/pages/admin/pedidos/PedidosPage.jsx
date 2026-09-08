@@ -48,7 +48,7 @@ export default function PedidosPage() {
                                 </td>
                                 <td className="px-4 py-3">
                                     <button
-                                        onClick={() => navigate(`/admin/pedidos/${p.id}`)}
+                                        onClick={() => navigate(`/detalle-pedido/${p.id}`)}
                                         className="text-xs font-medium text-brand-600 hover:text-brand-800">
                                         Ver detalle
                                     </button>
