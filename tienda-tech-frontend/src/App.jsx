@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import CatalogoPage from "./pages/catalogo/CatalogoPage";
@@ -10,7 +11,11 @@ import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage";
 import UsuariosPage from "./pages/admin/usuarios/UsuariosPage";
 import PedidosPage from "./pages/admin/pedidos/PedidosPage";
 import AdminHomePage from "./pages/admin/AdminHomePage";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
+import CarritoPage from "./pages/carrito/CarritoPage";
+import CheckoutPage from "./pages/checkout/CheckoutPage";
+import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
+import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
+
 // Rutas de cliente/admin protegidas (Carrito, Checkout, Perfil, Admin...)
 // se agregan en las siguientes ramas, envueltas en <ProtectedRoute>.
 export default function App() {
@@ -19,25 +24,20 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalogo" element={<CatalogoPage />} />
+        <Route path="/producto/:id" element={<ProductoDetallePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegistroPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
         <Route path="/reset-password" element={<RestablecerPasswordPage />} />
-        <Route path="/admin" element={
-          <ProtectedRoute rolRequerido="admin">
-            <AdminHomePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/listado-usuario" element={
-          <ProtectedRoute rolRequerido="admin">
-            <UsuariosPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/listado-pedido" element={
-          <ProtectedRoute rolRequerido="admin">
-            <PedidosPage />
-          </ProtectedRoute>
-        } />
+        <Route path="/admin" element={<ProtectedRoute rolRequerido="admin"><AdminHomePage /></ProtectedRoute>} />
+        <Route path="/listado-usuario" element={<ProtectedRoute rolRequerido="admin"><UsuariosPage /></ProtectedRoute>} />
+        <Route path="/listado-pedido" element={<ProtectedRoute rolRequerido="admin"><PedidosPage /></ProtectedRoute>} />
+        {/* ---- nuevas rutas de esta rama: feature/carrito-checkout ---- */}
+        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/checkout" element={ <ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+        <Route path="/pedido/confirmacion" element={ <ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
+
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
