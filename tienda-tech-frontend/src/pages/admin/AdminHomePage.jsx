@@ -13,6 +13,10 @@ export default function AdminHomePage() {
           <h2 className="font-heading text-lg text-brand-700 mb-1">Pedidos</h2>
           <p className="text-sm text-brand-500">Ver y actualizar estado de pedidos.</p>
         </a>
+        <a href="/admin/dashboard" className="block p-5 rounded-lg border border-brand-100 bg-surface-card hover:border-brand-400 transition">
+          <h2 className="font-heading text-lg text-brand-700 mb-1">Dashboard</h2>
+          <p className="text-sm text-brand-500">Indicadores y ventas del negocio.</p>
+        </a>
       </div>
     </div>
   );
