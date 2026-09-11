@@ -4,6 +4,10 @@ import { obtenerProducto } from "../../services/productosService";
 import { listarCategorias } from "../../services/categoriasService";
 import { agregarAlCarrito } from "../../services/carritoService";
 
+// Imagen por defecto
+const IMAGEN_DEFAULT =
+  "https://placehold.co/600x600/e2e8f0/64748b?text=Sin+imagen";
+
 export default function ProductoDetallePage() {
   const { id } = useParams();
 
@@ -36,6 +40,12 @@ export default function ProductoDetallePage() {
     (categoria) => categoria.id === producto.categoriaId
   )?.nombre;
 
+  // Imagen real o por defecto
+  const imagen =
+    Array.isArray(producto.imagenes) && producto.imagenes.length > 0
+      ? producto.imagenes[0]
+      : IMAGEN_DEFAULT;
+
   const aumentarCantidad = () => {
     setCantidad((actual) => Math.min(actual + 1, producto.stock));
   };
@@ -46,37 +56,27 @@ export default function ProductoDetallePage() {
 
   const handleAgregar = () => {
     agregarAlCarrito(producto.id, cantidad);
-
     setAgregado(true);
-
-    setTimeout(() => {
-      setAgregado(false);
-    }, 1500);
+    setTimeout(() => setAgregado(false), 1500);
   };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Link
-        to="/catalogo"
-        className="text-sm text-brand-600 hover:underline"
-      >
+      <Link to="/catalogo" className="text-sm text-brand-600 hover:underline">
         ← Volver al catálogo
       </Link>
 
       <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Imagen */}
-        <div className="card flex aspect-square items-center justify-center bg-brand-50">
-          {producto.imagenes?.length > 0 ? (
-            <img
-              src={producto.imagenes[0]}
-              alt={producto.nombre}
-              className="h-full w-full object-contain p-6"
-            />
-          ) : (
-            <span className="text-sm text-brand-300">
-              Imagen del producto
-            </span>
-          )}
+        <div className="card flex aspect-square items-center justify-center bg-brand-50 overflow-hidden">
+          <img
+            src={imagen}
+            alt={producto.nombre}
+            className="h-full w-full object-contain p-6"
+            onError={(e) => {
+              e.target.src = IMAGEN_DEFAULT;
+            }}
+          />
         </div>
 
         {/* Información */}
@@ -90,7 +90,7 @@ export default function ProductoDetallePage() {
           </h1>
 
           <p className="mt-4 text-2xl font-semibold text-brand-800">
-            S/ {producto.precio.toFixed(2)}
+            S/ {Number(producto.precio).toFixed(2)}
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
@@ -159,10 +159,7 @@ export default function ProductoDetallePage() {
                 <span className="w-1/2 font-medium capitalize text-slate-700">
                   {nombre}
                 </span>
-
-                <span className="w-1/2 text-slate-600">
-                  {valor}
-                </span>
+                <span className="w-1/2 text-slate-600">{valor}</span>
               </div>
             ))}
           </div>
