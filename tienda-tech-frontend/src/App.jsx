@@ -21,9 +21,10 @@ import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
 import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
 import PedidoDetallePage from "./pages/admin/pedidos/PedidoDetallePage";
 import DashboardPage from "./pages/admin/DashboardPage";
+import CategoriasPage from "./pages/admin/categorias/CategoriasPage";
+import ProductosPage from "./pages/admin/productos/ProductosPage";
+import ProductoFormPage from "./pages/admin/productos/ProductoFormPage";
 
-// Rutas de cliente/admin protegidas (Carrito, Checkout, Perfil, Admin...)
-// se agregan en las siguientes ramas, envueltas en <ProtectedRoute>.
 export default function App() {
   return (
     <Routes>
@@ -35,20 +36,91 @@ export default function App() {
         <Route path="/registro" element={<RegistroPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
         <Route path="/reset-password" element={<RestablecerPasswordPage />} />
-        <Route path="/admin" element={<ProtectedRoute rolRequerido="admin"><AdminHomePage /></ProtectedRoute>} />
-        <Route path="/listado-usuario" element={<ProtectedRoute rolRequerido="admin"><UsuariosPage /></ProtectedRoute>} />
-        <Route path="/listado-pedido" element={<ProtectedRoute rolRequerido="admin"><PedidosPage /></ProtectedRoute>} />
-        <Route path="/detalle-pedido/:id" element={<ProtectedRoute rolRequerido="admin"><PedidoDetallePage/></ProtectedRoute>}/>
-        <Route path="/admin/dashboard" element={<ProtectedRoute rolRequerido="admin"><DashboardPage/></ProtectedRoute>}/>
+
+        {/* Admin */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <AdminHomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listado-usuario"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <UsuariosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listado-pedido"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <PedidosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/detalle-pedido/:id"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <PedidoDetallePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/categorias"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <CategoriasPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/productos"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <ProductosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/productos/nuevo"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <ProductoFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/productos/editar/:id"
+          element={
+            <ProtectedRoute rolRequerido="admin">
+              <ProductoFormPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Perfil */}
         <Route path="/perfil" element={<ProtectedRoute><PerfilPage /></ProtectedRoute>} />
         <Route path="/editar-perfil" element={<ProtectedRoute><EditarPerfilPage /></ProtectedRoute>} />
         <Route path="/cambiar-password" element={<ProtectedRoute><CambiarPasswordPage /></ProtectedRoute>} />
         <Route path="/historial-pedidos" element={<ProtectedRoute><HistorialPedidosPage /></ProtectedRoute>} />
-        {/* ---- nuevas rutas de esta rama: feature/carrito-checkout ---- */}
-        <Route path="/carrito" element={<CarritoPage />} />
-        <Route path="/checkout" element={ <ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-        <Route path="/pedido/confirmacion" element={ <ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
 
+        {/* Carrito / Checkout */}
+        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+        <Route path="/pedido/confirmacion" element={<ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>
