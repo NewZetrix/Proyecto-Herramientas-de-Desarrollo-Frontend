@@ -15,6 +15,7 @@ import PerfilPage from "./pages/perfil/PerfilPage";
 import EditarPerfilPage from "./pages/perfil/EditarPerfilPage";
 import CambiarPasswordPage from "./pages/perfil/CambiarPasswordPage";
 import HistorialPedidosPage from "./pages/perfil/HistorialPedidosPage";
+import PedidoDetalleClientePage from "./pages/perfil/PedidoDetalleClientePage";
 import CarritoPage from "./pages/carrito/CarritoPage";
 import CheckoutPage from "./pages/checkout/CheckoutPage";
 import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
@@ -116,6 +117,7 @@ export default function App() {
         <Route path="/editar-perfil" element={<ProtectedRoute><EditarPerfilPage /></ProtectedRoute>} />
         <Route path="/cambiar-password" element={<ProtectedRoute><CambiarPasswordPage /></ProtectedRoute>} />
         <Route path="/historial-pedidos" element={<ProtectedRoute><HistorialPedidosPage /></ProtectedRoute>} />
+        <Route path="/pedido-detalle/:id" element={<ProtectedRoute><PedidoDetalleClientePage /></ProtectedRoute>} />
 
         {/* Carrito / Checkout */}
         <Route path="/carrito" element={<CarritoPage />} />

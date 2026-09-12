@@ -1,27 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { listarUsuarios } from "../../services/authService";
+import { usuarioActual } from "../../services/authService";
 import Button from "../../components/ui/Button";
 import Sidebar from "../../components/layout/Sidebar";
+import { listarPedidosDeUsuario } from "../../services/pedidosService";
 
 export default function HistorialPedidosPage() {
-  const navigate = useNavigate();
-  const [usuarios, setUsuarios] = useState([]);
-  const [usuarioActual, setUsuarioActual] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [pedidos, setPedidos] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const usuarios = listarUsuarios();
-    const idSesion = JSON.parse(localStorage.getItem("sesion") || "null");
-    const user = usuarioActual || usuarios.find((u) => u.id === idSesion);
-    setUsuarioActual(user);
-    setUsuarios(usuarios);
+    const usuarios=usuarioActual();
+    const pedidosUsuario = listarPedidosDeUsuario(usuarios.id) || [];
+    setPedidos(pedidosUsuario);
     setCargando(false);
   }, []);
 
-  if (!usuarioActual || cargando) {
+  if (!pedidos || cargando) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 lg:pt-8 sm:px-6">
         <div className="lg:flex lg:w-full">
           <Sidebar />
           <main className="lg:w-full lg:pl-8">
@@ -33,10 +31,10 @@ export default function HistorialPedidosPage() {
     );
   }
 
-  const misPedidos = usuarioActual?.pedidos || [];
+  const misPedidos = pedidos
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 lg:pt-8 sm:px-6">
       <div className="lg:flex lg:w-full">
         <Sidebar />
 
@@ -56,9 +54,18 @@ export default function HistorialPedidosPage() {
                       <p className="font-heading text-sm text-slate-500">Número de pedido</p>
                       <p className="text-2xl font-bold text-brand-600">{pedido.id}</p>
                     </div>
-                    <p className="text-slate-500 text-sm">Fecha: {new Date(
-                      pedido.fecha
-                    ).toLocaleDateString()}</p>
+                    <div className="text-right">
+                      <p className="text-slate-500 text-sm">Fecha: {new Date(
+                        pedido.fecha
+                      ).toLocaleDateString()}</p>
+                      <Button
+                        variant="secondary"
+                        className="mt-2"
+                        onClick={() => navigate(`/pedido-detalle/${pedido.id}`)}
+                      >
+                        Ver detalle
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
