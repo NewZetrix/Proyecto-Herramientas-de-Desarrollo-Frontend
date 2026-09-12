@@ -38,6 +38,16 @@
     "direccion": "Jr. Los Pinos 789, Lima",
     "rol": "cliente",
     "estado": "activo"
+  },
+  {
+    "id": "u005",
+    "nombre": "Mariana Castillo",
+    "correo": "mariana@correo.com",
+    "password": "mariana123",
+    "telefono": "985439109",
+    "direccion": "Calle Las Flores 321, Lima",
+    "rol": "cliente",
+   "estado": "activo"
   }
 
 ]
