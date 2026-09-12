@@ -3,5 +3,6 @@
   { "id": "c002", "nombre": "PCs de escritorio" },
   { "id": "c003", "nombre": "Perifericos" },
   { "id": "c004", "nombre": "Componentes" },
-  { "id": "c005", "nombre": "Monitores" }
+  { "id": "c005", "nombre": "Monitores" },
+  { "id": "c006", "nombre": "Accesorios" }
 ]
