@@ -7,9 +7,13 @@ import { listarProductos } from "../../../services/productosService";
 export default function PedidoDetallePage() {
     const { id } = useParams();
     const [pedido, setPedido] = useState(null);
+    const [guardado, setGuardado] = useState(false);
+    const [estadoSeleccionado, setEstadoSeleccionado] = useState(pedido?.estado ?? "");
 
     useEffect(() => {
-        setPedido(obtenerPedido(id));
+        const p = obtenerPedido(id);
+        setPedido(p);
+        if (p) setEstadoSeleccionado(p.estado);
     }, [id]);
 
     const nombreUsuario = (usuarioId) => {
@@ -22,9 +26,11 @@ export default function PedidoDetallePage() {
         return producto ? producto.nombre : "Producto eliminado";
     };
 
-    const handleCambiarEstado = (nuevoEstado) => {
-        actualizarEstadoPedido(pedido.id, nuevoEstado);
+    const handleConfirmarEstado = () => {
+        actualizarEstadoPedido(pedido.id, estadoSeleccionado);
         setPedido(obtenerPedido(pedido.id));
+        setGuardado(true);
+        setTimeout(() => setGuardado(false), 2000);
     };
 
     if (!pedido) {
@@ -53,18 +59,32 @@ export default function PedidoDetallePage() {
                 <p className="text-sm text-brand-900"><span className="font-medium">Total:</span> S/ {pedido.total.toFixed(2)}</p>
             </div>
 
-            <div className="pt-2">
-                <label className="text-sm font-medium text-brand-900 mr-2">Estado:</label>
+            <div className="pt-2 flex items-center gap-3">
+                <label className="text-sm font-medium text-brand-900">Estado del pedido:</label>
                 <select
-                    value={pedido.estado}
-                    onChange={(e) => handleCambiarEstado(e.target.value)}
-                    className="text-sm border border-brand-200 rounded px-2 py-1 bg-surface-card text-brand-900"
+                    value={estadoSeleccionado}
+                    onChange={(e) => setEstadoSeleccionado(e.target.value)}
+                    className="text-sm font-medium border-2 border-brand-300 rounded-md px-3 py-1.5 bg-white text-brand-900 cursor-pointer hover:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-400"
                 >
                     <option value="pendiente">Pendiente</option>
                     <option value="enviado">Enviado</option>
                     <option value="entregado">Entregado</option>
                     <option value="cancelado">Cancelado</option>
                 </select>
+
+                <button
+                    onClick={handleConfirmarEstado}
+                    disabled={estadoSeleccionado === pedido.estado}
+                    className="text-sm font-medium px-3 py-1.5 rounded-md bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                    Confirmar
+                </button>
+
+                {guardado && (
+                    <span className="text-sm font-medium text-accent-600 flex items-center gap-1">
+                        Estado actualizado
+                    </span>
+                )}
             </div>
 
             <div className="overflow-x-auto rounded-lg border border-brand-100 bg-surface-card">
