@@ -58,5 +58,45 @@
     "imagenes": ["/img/ram-kingston-fury.jpg"],
     "descripcion": "Memoria RAM DDR4 para actualizar tu PC.",
     "specs": { "capacidad": "16GB", "tipo": "DDR4", "velocidad": "3200MHz" }
+  },
+  {
+    "id": "p007",
+    "nombre": "Monitor LG 24MP400-B",
+    "categoriaId": "c005",
+    "precio": 599.00,
+    "stock": 15,
+    "imagenes": ["/img/monitor-lg-24mp400.jpg"],
+    "descripcion": "Monitor de 24 pulgadas Full HD, ideal para estudio, oficina y entretenimiento.",
+    "specs": {
+    "pantalla": "24 pulgadas FHD",
+    "resolucion": "1920x1080",
+    "conexion": "HDMI"}
+  },
+  {
+    "id": "p008",
+    "nombre": "Webcam Logitech C920",
+    "categoriaId": "c006",
+    "precio": 349.90,
+    "stock": 10,
+    "imagenes": ["/img/webcam-logitech-c920.jpg"],
+    "descripcion": "Webcam Full HD ideal para videollamadas, clases virtuales y reuniones.",
+    "specs": {
+    "resolucion": "1080p Full HD",
+    "conexion": "USB",
+    "microfono": "Integrado"}
+  },
+  {
+    "id": "p009",
+    "nombre": "Impresora HP DeskJet 2874",
+    "categoriaId": "c007",
+    "precio": 329.90,
+    "stock": 10,
+    "imagenes": ["/img/impresora-hp-deskjet-2874.jpg"],
+    "descripcion": "Impresora multifuncional compacta para imprimir, escanear y copiar documentos.",
+    "specs": {
+    "tipo": "Multifuncional",
+    "conexion": "USB y WiFi",
+    "impresion": "Color"}
   }
+
 ]
