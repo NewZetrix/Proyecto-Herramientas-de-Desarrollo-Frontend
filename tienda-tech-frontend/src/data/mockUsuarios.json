@@ -18,5 +18,16 @@
     "direccion": "-",
     "rol": "admin",
     "estado": "activo"
+  },
+  {
+    "id": "u003",
+    "nombre": "Carlos Mendoza",
+    "correo": "carlos@correo.com",
+    "password": "carlos123",
+    "telefono": "987654321",
+    "direccion": "Av. Los Olivos 456, Lima",
+    "rol": "cliente",
+    "estado": "activo"
   }
+
 ]
