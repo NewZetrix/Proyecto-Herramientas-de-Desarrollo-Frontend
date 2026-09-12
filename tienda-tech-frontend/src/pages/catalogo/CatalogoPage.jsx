@@ -25,7 +25,7 @@ export default function CatalogoPage() {
   const [orden, setOrden] = useState("relevancia");
   const [paginaActual, setPaginaActual] = useState(1);
 
-  const productosPorPagina = 4;
+  const productosPorPagina = 6;
 
   const productos = useMemo(
     () => {

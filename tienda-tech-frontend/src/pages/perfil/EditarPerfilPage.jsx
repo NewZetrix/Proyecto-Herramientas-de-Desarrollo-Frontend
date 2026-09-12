@@ -20,6 +20,7 @@ export default function EditarPerfilPage() {
     direccion: usuario.direccion,
   });
   const [errores, setErrores] = useState({});
+  const [message, setMessage] = useState("");
   const [errorGeneral, setErrorGeneral] = useState("");
 
   const handleChange = (e) => {
@@ -43,7 +44,7 @@ export default function EditarPerfilPage() {
 
     try {
       await actualizarPerfil(usuario.id, form);
-      setErrorGeneral("Perfil actualizado correctamente");
+      setMessage("Perfil actualizado correctamente");
       setTimeout(() => navigate("/perfil"), 2000);
     } catch (e) {
       setErrorGeneral("Error al actualizar el perfil");
@@ -58,13 +59,9 @@ export default function EditarPerfilPage() {
         <main className="lg:w-full lg:pl-8">
           <h1 className="text-2xl font-heading mb-6">Editar perfil</h1>
 
-          {errorGeneral && (
-            <div className="mt-4 rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+          {!errorGeneral ? (<p className="mt-2 text-green-600">{message}</p>):(<div className="mt-4 rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
               {errorGeneral}
-            </div>
-          )}
-
-          {errorGeneral && <p className="mt-2 text-green-600">Perfil actualizado correctamente</p>}
+            </div>)}
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <FormField
