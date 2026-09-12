@@ -71,6 +71,18 @@
     "pantalla": "24 pulgadas FHD",
     "resolucion": "1920x1080",
     "conexion": "HDMI"}
+  },
+  {
+    "id": "p008",
+    "nombre": "Webcam Logitech C920",
+    "categoriaId": "c006",
+    "precio": 349.90,
+    "stock": 10,
+    "imagenes": ["/img/webcam-logitech-c920.jpg"],
+    "descripcion": "Webcam Full HD ideal para videollamadas, clases virtuales y reuniones.",
+    "specs": {
+    "resolucion": "1080p Full HD",
+    "conexion": "USB",
+    "microfono": "Integrado"}
   }
-
 ]
