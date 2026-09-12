@@ -58,5 +58,19 @@
     "imagenes": ["/img/ram-kingston-fury.jpg"],
     "descripcion": "Memoria RAM DDR4 para actualizar tu PC.",
     "specs": { "capacidad": "16GB", "tipo": "DDR4", "velocidad": "3200MHz" }
+  },
+  {
+    "id": "p007",
+    "nombre": "Monitor LG 24MP400-B",
+    "categoriaId": "c005",
+    "precio": 599.00,
+    "stock": 15,
+    "imagenes": ["/img/monitor-lg-24mp400.jpg"],
+    "descripcion": "Monitor de 24 pulgadas Full HD, ideal para estudio, oficina y entretenimiento.",
+    "specs": {
+    "pantalla": "24 pulgadas FHD",
+    "resolucion": "1920x1080",
+    "conexion": "HDMI"}
   }
+
 ]
