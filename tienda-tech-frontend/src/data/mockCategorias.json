@@ -4,5 +4,6 @@
   { "id": "c003", "nombre": "Perifericos" },
   { "id": "c004", "nombre": "Componentes" },
   { "id": "c005", "nombre": "Monitores" },
-  { "id": "c006", "nombre": "Accesorios" }
+  { "id": "c006", "nombre": "Accesorios" },
+  { "id": "c007", "nombre": "Impresoras" }
 ]
