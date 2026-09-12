@@ -84,5 +84,19 @@
     "resolucion": "1080p Full HD",
     "conexion": "USB",
     "microfono": "Integrado"}
+  },
+  {
+    "id": "p009",
+    "nombre": "Impresora HP DeskJet 2874",
+    "categoriaId": "c007",
+    "precio": 329.90,
+    "stock": 10,
+    "imagenes": ["/img/impresora-hp-deskjet-2874.jpg"],
+    "descripcion": "Impresora multifuncional compacta para imprimir, escanear y copiar documentos.",
+    "specs": {
+    "tipo": "Multifuncional",
+    "conexion": "USB y WiFi",
+    "impresion": "Color"}
   }
+
 ]
