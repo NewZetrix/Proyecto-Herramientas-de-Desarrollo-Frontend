@@ -1,8 +1,7 @@
 import { getAll, saveAll, removeItem } from "./localStorageService";
 
 const KEY = "carrito";
-// Cada item del carrito: { id: productoId, cantidad }
-// Usamos id = productoId para poder reutilizar las funciones genericas.
+
 
 export const obtenerCarrito = () => getAll(KEY, []);
 
