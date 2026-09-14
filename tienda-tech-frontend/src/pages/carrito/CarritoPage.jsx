@@ -53,7 +53,6 @@ export default function CarritoPage() {
         <div className="space-y-4">
           {items.map(({ id, cantidad, producto }) => (
             <div key={id} className="card flex flex-wrap items-center gap-4 p-4">
-
               <div className="min-w-[140px] flex-1">
                 <p className="font-medium text-slate-800">{producto.nombre}</p>
                 <p className="text-sm text-slate-500">S/ {producto.precio.toFixed(2)} c/u</p>
