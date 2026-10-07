@@ -229,3 +229,48 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.orders
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.cart_items
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- ============================================
+-- 7. SEED DATA — Categories
+-- ============================================
+INSERT INTO public.categories (id, nombre) VALUES
+  ('c001', 'Laptops'),
+  ('c002', 'PCs de escritorio'),
+  ('c003', 'Perifericos'),
+  ('c004', 'Componentes')
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
+-- 8. SEED DATA — Products
+-- ============================================
+INSERT INTO public.products (id, nombre, categoria_id, precio, stock, imagenes, descripcion, specs) VALUES
+  ('p001', 'Laptop Lenovo IdeaPad 3', 'c001', 2499.90, 12,
+    '["p001/product.svg"]'::jsonb,
+    'Laptop ligera para uso diario y estudio, buena autonomia de bateria.',
+    '{"procesador":"AMD Ryzen 5 5500U","ram":"8GB","almacenamiento":"512GB SSD","pantalla":"15.6 pulgadas FHD"}'::jsonb),
+
+  ('p002', 'Laptop ASUS ROG Strix G16', 'c001', 6899.00, 5,
+    '["p002/product.svg"]'::jsonb,
+    'Laptop gamer de alto rendimiento con tarjeta grafica dedicada.',
+    '{"procesador":"Intel Core i7-13650HX","ram":"16GB","almacenamiento":"1TB SSD","gpu":"RTX 4060"}'::jsonb),
+
+  ('p003', 'PC de escritorio HP Pavilion', 'c002', 3199.00, 8,
+    '["p003/product.svg"]'::jsonb,
+    'PC de escritorio para oficina y uso multimedia.',
+    '{"procesador":"Intel Core i5-13400","ram":"16GB","almacenamiento":"512GB SSD"}'::jsonb),
+
+  ('p004', 'Mouse inalambrico Logitech M170', 'c003', 39.90, 50,
+    '["p004/product.svg"]'::jsonb,
+    'Mouse inalambrico compacto, ideal para uso diario.',
+    '{"conexion":"USB inalambrico","dpi":"1000"}'::jsonb),
+
+  ('p005', 'Teclado mecanico Redragon Kumara', 'c003', 129.90, 20,
+    '["p005/product.svg"]'::jsonb,
+    'Teclado mecanico compacto con retroiluminacion.',
+    '{"switches":"Blue","conexion":"USB"}'::jsonb),
+
+  ('p006', 'Memoria RAM Kingston Fury 16GB', 'c004', 219.00, 30,
+    '["p006/product.svg"]'::jsonb,
+    'Memoria RAM DDR4 para actualizar tu PC.',
+    '{"capacidad":"16GB","tipo":"DDR4","velocidad":"3200MHz"}'::jsonb)
+ON CONFLICT (id) DO NOTHING;
