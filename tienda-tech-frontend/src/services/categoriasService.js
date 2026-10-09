@@ -1,10 +1,57 @@
-import { getAll, addItem, updateItem, removeItem } from "./localStorageService";
-import mockCategorias from "../data/mockCategorias.json";
+import insforge from "./insforgeClient";
 
-const KEY = "categorias";
+/** Mapea fila de categoría de DB (snake_case) → forma del frontend (camelCase) */
+const mapCategoria = (row) => ({
+  id: row.id,
+  nombre: row.nombre,
+});
 
-// Usan esto: Catalogo (filtro por categoria), Admin-Categorias, Admin-Productos (formulario)
-export const listarCategorias = () => getAll(KEY, mockCategorias);
-export const crearCategoria = (categoria) => addItem(KEY, categoria);
-export const editarCategoria = (id, cambios) => updateItem(KEY, id, cambios);
-export const eliminarCategoria = (id) => removeItem(KEY, id);
+export const listarCategorias = async () => {
+  const { data, error } = await insforge.database
+    .from("categories")
+    .select()
+    .order("nombre", { ascending: true });
+
+  if (error) {
+    console.error("Error listando categorías:", error);
+    return [];
+  }
+  return (data ?? []).map(mapCategoria);
+};
+
+export const crearCategoria = async (categoria) => {
+  const { data, error } = await insforge.database
+    .from("categories")
+    .insert({
+      nombre: categoria.nombre,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapCategoria(data);
+};
+
+export const editarCategoria = async (id, cambios) => {
+  const payload = {};
+  if (cambios.nombre !== undefined) payload.nombre = cambios.nombre;
+
+  const { data, error } = await insforge.database
+    .from("categories")
+    .update(payload)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapCategoria(data);
+};
+
+export const eliminarCategoria = async (id) => {
+  const { error } = await insforge.database
+    .from("categories")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+};
