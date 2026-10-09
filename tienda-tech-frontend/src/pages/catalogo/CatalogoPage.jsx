@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { buscarProductos } from "../../services/productosService";
 import { listarCategorias } from "../../services/categoriasService";
@@ -6,68 +6,86 @@ import ProductCard from "../../components/productos/ProductCard";
 import ProductSort from "../../components/productos/ProductSort";
 import ProductPagination from "../../components/productos/ProductPagination";
 
-// RF-08: mostrar el listado de productos disponibles.
-// RF-09: filtrar productos por categoria.
-// RF-10: filtrar productos por rango de precio.
-// RF-11: buscar productos por nombre o palabra clave.
-//
-// RF-12 (ordenar), RF-13 (detalle) y RF-14 (paginacion) quedan para la
-// siguiente rama (feature/catalogo-detalle-favoritos ya sin la parte de favoritos).
 export default function CatalogoPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const categorias = listarCategorias();
+
+  const [categorias, setCategorias] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [texto, setTexto] = useState("");
   const categoriaId = searchParams.get("categoria") ?? "";
   const [precioMax, setPrecioMax] = useState("");
-
-  
   const [orden, setOrden] = useState("relevancia");
   const [paginaActual, setPaginaActual] = useState(1);
 
   const productosPorPagina = 6;
 
-  const productos = useMemo(
-    () => {
-      const resultado = buscarProductos({
-        texto: texto.trim() || undefined,
-        categoriaId: categoriaId || undefined,
-        precioMax: precioMax ? Number(precioMax) : undefined,
+  // Cargar categorías una vez
+  useEffect(() => {
+    listarCategorias()
+      .then((data) => setCategorias(data ?? []))
+      .catch(() => setCategorias([]));
+  }, []);
+
+  // Buscar productos cuando cambian filtros u orden
+  useEffect(() => {
+    let cancelado = false;
+    setLoading(true);
+    setError("");
+
+    buscarProductos({
+      texto: texto.trim() || undefined,
+      categoriaId: categoriaId || undefined,
+      precioMax: precioMax ? Number(precioMax) : undefined,
+    })
+      .then((resultado) => {
+        if (cancelado) return;
+
+        let lista = resultado ?? [];
+
+        switch (orden) {
+          case "precioAsc":
+            lista = [...lista].sort((a, b) => a.precio - b.precio);
+            break;
+          case "precioDesc":
+            lista = [...lista].sort((a, b) => b.precio - a.precio);
+            break;
+          case "nombreAsc":
+            lista = [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre));
+            break;
+          case "nombreDesc":
+            lista = [...lista].sort((a, b) => b.nombre.localeCompare(a.nombre));
+            break;
+          default:
+            break;
+        }
+
+        setProductos(lista);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelado) return;
+        console.error(err);
+        setError("No se pudieron cargar los productos");
+        setProductos([]);
+        setLoading(false);
       });
 
-      switch (orden) {
-        case "precioAsc":
-          return [...resultado].sort((a, b) => a.precio - b.precio);
-
-        case "precioDesc":
-          return [...resultado].sort((a, b) => b.precio - a.precio);
-
-        case "nombreAsc":
-          return [...resultado].sort((a, b) =>
-            a.nombre.localeCompare(b.nombre)
-          );
-
-        case "nombreDesc":
-          return [...resultado].sort((a, b) =>
-            b.nombre.localeCompare(a.nombre)
-          );
-
-        case "relevancia":
-        default:
-          return resultado;
-      }
-    }, [texto, categoriaId, precioMax, orden]);
-
-  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
-
-  const indiceInicio = (paginaActual - 1) * productosPorPagina;
-  const indiceFin = indiceInicio + productosPorPagina;
-
-  const productosPagina = productos.slice(indiceInicio, indiceFin);
-
-  useEffect(() => {
-  setPaginaActual(1);
+    return () => {
+      cancelado = true;
+    };
   }, [texto, categoriaId, precioMax, orden]);
+
+  // Reset página al cambiar filtros
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [texto, categoriaId, precioMax, orden]);
+
+  const totalPaginas = Math.max(1, Math.ceil(productos.length / productosPorPagina));
+  const indiceInicio = (paginaActual - 1) * productosPorPagina;
+  const productosPagina = productos.slice(indiceInicio, indiceInicio + productosPorPagina);
 
   const categoriaNombre = (id) => categorias.find((c) => c.id === id)?.nombre;
 
@@ -155,40 +173,52 @@ export default function CatalogoPage() {
 
         <div>
           <div className="mb-4 flex justify-end">
-            <ProductSort
-              orden={orden}
-              onOrdenChange={setOrden}
-            />
+            <ProductSort orden={orden} onOrdenChange={setOrden} />
           </div>
 
-          <p className="mb-4 text-sm text-slate-500">{productos.length} productos encontrados</p>
-
-          {productos.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-2 py-16 text-center">
-              <p className="font-medium text-slate-700">
-                No encontramos productos con esos filtros
-              </p>
-              <button onClick={limpiarFiltros} className="text-sm text-brand-600 hover:underline">
-                Quitar filtros
-              </button>
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
             </div>
+          ) : error ? (
+            <div className="card py-16 text-center text-red-600">{error}</div>
           ) : (
-            <> 
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                {productosPagina.map((producto) => (
-                  <ProductCard
-                    key={producto.id}
-                    producto={producto}
-                    categoriaNombre={categoriaNombre(producto.categoriaId)}
-                  />
-                ))}
-              </div>
+            <>
+              <p className="mb-4 text-sm text-slate-500">
+                {productos.length} productos encontrados
+              </p>
 
-              <ProductPagination
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                onPaginaChange={setPaginaActual}
-              />
+              {productos.length === 0 ? (
+                <div className="card flex flex-col items-center justify-center gap-2 py-16 text-center">
+                  <p className="font-medium text-slate-700">
+                    No encontramos productos con esos filtros
+                  </p>
+                  <button
+                    onClick={limpiarFiltros}
+                    className="text-sm text-brand-600 hover:underline"
+                  >
+                    Quitar filtros
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                    {productosPagina.map((producto) => (
+                      <ProductCard
+                        key={producto.id}
+                        producto={producto}
+                        categoriaNombre={categoriaNombre(producto.categoriaId)}
+                      />
+                    ))}
+                  </div>
+
+                  <ProductPagination
+                    paginaActual={paginaActual}
+                    totalPaginas={totalPaginas}
+                    onPaginaChange={setPaginaActual}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
