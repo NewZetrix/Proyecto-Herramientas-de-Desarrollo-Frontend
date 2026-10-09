@@ -1,21 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { obtenerProducto } from "../../services/productosService";
 import { listarCategorias } from "../../services/categoriasService";
 import { agregarAlCarrito } from "../../services/carritoService";
 
-// Imagen por defecto
 const IMAGEN_DEFAULT =
   "https://placehold.co/600x600/e2e8f0/64748b?text=Sin+imagen";
 
 export default function ProductoDetallePage() {
   const { id } = useParams();
 
-  const producto = obtenerProducto(id);
-  const categorias = listarCategorias();
-
+  const [producto, setProducto] = useState(null);
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cantidad, setCantidad] = useState(1);
   const [agregado, setAgregado] = useState(false);
+
+  useEffect(() => {
+    let cancelado = false;
+    setLoading(true);
+
+    Promise.all([obtenerProducto(id), listarCategorias()])
+      .then(([p, cats]) => {
+        if (cancelado) return;
+        setProducto(p);
+        setCategorias(cats ?? []);
+        setCantidad(1);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelado) return;
+        console.error(err);
+        setProducto(null);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex max-w-6xl justify-center px-4 py-16">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!producto) {
     return (
@@ -24,11 +55,7 @@ export default function ProductoDetallePage() {
           <h1 className="text-xl font-semibold text-slate-800">
             Producto no encontrado
           </h1>
-
-          <Link
-            to="/catalogo"
-            className="text-sm text-brand-600 hover:underline"
-          >
+          <Link to="/catalogo" className="text-sm text-brand-600 hover:underline">
             Volver al catálogo
           </Link>
         </div>
@@ -40,7 +67,6 @@ export default function ProductoDetallePage() {
     (categoria) => categoria.id === producto.categoriaId
   )?.nombre;
 
-  // Imagen real o por defecto
   const imagen =
     Array.isArray(producto.imagenes) && producto.imagenes.length > 0
       ? producto.imagenes[0]
@@ -68,7 +94,7 @@ export default function ProductoDetallePage() {
 
       <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Imagen */}
-        <div className="card flex aspect-square items-center justify-center bg-brand-50 overflow-hidden">
+        <div className="card flex aspect-square items-center justify-center overflow-hidden bg-brand-50">
           <img
             src={imagen}
             alt={producto.nombre}
@@ -99,28 +125,20 @@ export default function ProductoDetallePage() {
               : "Sin stock"}
           </p>
 
-          <p className="mt-6 leading-7 text-slate-600">
-            {producto.descripcion}
-          </p>
+          <p className="mt-6 leading-7 text-slate-600">{producto.descripcion}</p>
 
-          {/* Cantidad */}
           {producto.stock > 0 && (
             <div className="mt-6">
               <p className="field-label">Cantidad</p>
-
               <div className="mt-2 flex items-center gap-3">
                 <button
                   onClick={disminuirCantidad}
                   disabled={cantidad === 1}
                   className="btn-secondary h-10 w-10"
                 >
-                  -
+                  −
                 </button>
-
-                <span className="min-w-8 text-center font-medium">
-                  {cantidad}
-                </span>
-
+                <span className="min-w-8 text-center font-medium">{cantidad}</span>
                 <button
                   onClick={aumentarCantidad}
                   disabled={cantidad === producto.stock}
@@ -132,7 +150,6 @@ export default function ProductoDetallePage() {
             </div>
           )}
 
-          {/* Carrito */}
           <button
             onClick={handleAgregar}
             disabled={producto.stock === 0}
@@ -146,10 +163,7 @@ export default function ProductoDetallePage() {
       {/* Especificaciones */}
       {producto.specs && Object.keys(producto.specs).length > 0 && (
         <div className="mt-10">
-          <h2 className="text-xl font-semibold text-slate-800">
-            Especificaciones
-          </h2>
-
+          <h2 className="text-xl font-semibold text-slate-800">Especificaciones</h2>
           <div className="card mt-4 overflow-hidden">
             {Object.entries(producto.specs).map(([nombre, valor]) => (
               <div
