@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { actualizarPerfil, usuarioActual } from "../../services/authService";
+import { useAuth } from "../../contexts/AuthContext";
 import FormField from "../../components/ui/FormField";
 import Button from "../../components/ui/Button";
 import Sidebar from "../../components/layout/Sidebar";
 
 export default function CambiarPasswordPage() {
   const navigate = useNavigate();
-  const usuario = usuarioActual();
-
-  if (!usuario) {
-    return null;
-  }
+  const { changePassword, loading } = useAuth();
 
   const [form, setForm] = useState({
     passwordActual: "",
@@ -19,7 +15,9 @@ export default function CambiarPasswordPage() {
     passwordConfirmar: "",
   });
   const [errores, setErrores] = useState({});
+  const [mensaje, setMensaje] = useState("");
   const [errorGeneral, setErrorGeneral] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,8 +28,10 @@ export default function CambiarPasswordPage() {
     const nuevosErrores = {};
     if (!form.passwordActual.trim()) nuevosErrores.passwordActual = "Ingresa tu contraseña actual";
     if (!form.passwordNueva.trim()) nuevosErrores.passwordNueva = "Ingresa la nueva contraseña";
-    if (form.passwordNueva.length < 6) nuevosErrores.passwordNueva = "La contraseña debe tener al menos 6 caracteres";
-    if (form.passwordNueva !== form.passwordConfirmar) nuevosErrores.passwordConfirmar = "Las contraseñas no coinciden";
+    if (form.passwordNueva.length < 6)
+      nuevosErrores.passwordNueva = "La contraseña debe tener al menos 6 caracteres";
+    if (form.passwordNueva !== form.passwordConfirmar)
+      nuevosErrores.passwordConfirmar = "Las contraseñas no coinciden";
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
@@ -39,28 +39,54 @@ export default function CambiarPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorGeneral("");
+    setMensaje("");
     if (!validar()) return;
 
-    try {
-      await actualizarPerfil(usuario.id, { password: form.passwordNueva });
-      setErrorGeneral("Contraseña actualizada correctamente");
-      setTimeout(() => navigate("/perfil"), 2000);
-    } catch (e) {
-      setErrorGeneral("Error al actualizar la contraseña");
+    setCargando(true);
+    const resultado = await changePassword(form.passwordActual, form.passwordNueva);
+    setCargando(false);
+
+    if (!resultado.ok) {
+      setErrorGeneral(resultado.error);
+      return;
     }
+
+    setMensaje("Contraseña actualizada correctamente");
+    setForm({ passwordActual: "", passwordNueva: "", passwordConfirmar: "" });
+    setTimeout(() => navigate("/perfil"), 2000);
   };
 
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="lg:flex lg:w-full">
+          <Sidebar />
+          <main className="lg:w-full lg:pl-8">
+            <h1 className="mb-6 text-2xl font-heading">Cambiar contraseña</h1>
+            <p className="text-slate-500">Cargando...</p>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 lg:pt-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="lg:flex lg:w-full">
         <Sidebar />
 
         <main className="lg:w-full lg:pl-8">
-          <h1 className="text-2xl font-heading mb-6">Cambiar contraseña</h1>
+          <h1 className="mb-6 text-2xl font-heading">Cambiar contraseña</h1>
 
           {errorGeneral && (
             <div className="mt-4 rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
               {errorGeneral}
+            </div>
+          )}
+
+          {mensaje && (
+            <div className="mt-4 rounded-lg bg-green-50 px-3.5 py-2.5 text-sm text-green-700">
+              {mensaje}
             </div>
           )}
 
@@ -97,8 +123,8 @@ export default function CambiarPasswordPage() {
             />
 
             <div className="mt-6 flex justify-end">
-              <Button type="submit" className="btn-primary">
-                Actualizar contraseña
+              <Button type="submit" className="btn-primary" disabled={cargando}>
+                {cargando ? "Actualizando..." : "Actualizar contraseña"}
               </Button>
               <Link to="/perfil" className="ml-4 btn-ghost">
                 Cancelar
