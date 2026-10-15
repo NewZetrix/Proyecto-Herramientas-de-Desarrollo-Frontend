@@ -11,6 +11,23 @@ export default function Navbar() {
 
   const [showDropdown, setShowDropdown] = useState(false);
 
+  useEffect(() => {
+      const ctrl = { cancelled: false };  
+      if (!isAuthenticated) {
+        const unsub = onGuestCartUpdate(() => {
+          if (!ctrl.cancelled) setCantidadCarrito(getGuestCartCount());
+        });
+        return () => { ctrl.cancelled = true; unsub(); };
+      }
+  
+      obtenerCarrito()
+        .then((items) => {
+          if (!ctrl.cancelled) setCantidadCarrito(items.reduce((acc, i) => acc + i.cantidad, 0));
+        })
+        .catch(() => {});
+      return () => { ctrl.cancelled = true; };
+    }, [isAuthenticated,navigate]);
+
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
   const handleLogout = () => {
