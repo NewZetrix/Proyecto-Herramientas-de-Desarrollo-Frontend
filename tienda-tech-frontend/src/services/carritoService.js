@@ -1,33 +1,100 @@
-import { getAll, saveAll, removeItem } from "./localStorageService";
+import insforge from "./insforgeClient";
 
-const KEY = "carrito";
+const GUEST_CART_KEY = "guest_cart";
 
-
-export const obtenerCarrito = () => getAll(KEY, []);
-
-export const agregarAlCarrito = (productoId, cantidad = 1) => {
-  const carrito = obtenerCarrito();
-  const existente = carrito.find((item) => item.id === productoId);
-  if (existente) {
-    existente.cantidad += cantidad;
-  } else {
-    carrito.push({ id: productoId, cantidad });
+async function getAuthUser() {
+  try {
+    const { data, error } = await insforge.auth.getCurrentUser();
+    if (!error && data?.user) return data.user;
+  } catch (err) {
+    return null;
   }
-  saveAll(KEY, carrito);
-  return carrito;
+  return null;
+}
+
+export const obtenerCarrito = async () => {
+  const user = await getAuthUser();
+  if (!user) return getGuestCart();
+
+  const { data, error } = await insforge.database
+    .from("cart_items")
+    .select("*")
+    .order("created_at");
+  if (error) throw error;
+  return data || [];
 };
 
-export const cambiarCantidad = (productoId, cantidad) => {
-  const carrito = obtenerCarrito();
-  const item = carrito.find((i) => i.id === productoId);
-  if (item) item.cantidad = cantidad;
-  saveAll(KEY, carrito);
-  return carrito;
+export const obtenerCarritobyidproducto = async (productoId) => {
+  const user = await getAuthUser();
+  if (!user) return getGuestCart().find((i) => i.producto_id === productoId);
+
+  const { data, error } = await insforge.database
+    .from("cart_items")
+    .select("*")
+    .order("created_at")
+    .eq("producto_id", productoId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
 };
 
-export const quitarDelCarrito = (productoId) => {
-  removeItem(KEY, productoId);
+export const agregarAlCarrito = async (productoId, cantidad = 1) => {
+  const user = await getAuthUser();
+
+
+  const { data: existing } = await insforge.database
+    .from("cart_items")
+    .select()
+    .eq("producto_id", productoId)
+    .eq("usuario_id", user.id)
+    .maybeSingle();
+  if (existing) {
+    const { error } = await insforge.database
+      .from("cart_items")
+      .update({ cantidad: existing.cantidad + cantidad })
+      .eq("id", existing.id);
+    if (error) throw error;
+  } else {
+    const { error } = await insforge.database
+      .from("cart_items")
+      .insert({ producto_id: productoId, cantidad, usuario_id: user.id });
+    if (error) throw error;
+  }
+
+  return;
+};
+
+export const cambiarCantidad = async (productoId, cantidad) => {
+  const user = await getAuthUser();
+
+  const { error } = await insforge.database
+    .from("cart_items")
+    .update({ cantidad })
+    .eq("producto_id", productoId)
+    .eq("usuario_id", user.id);
+  if (error) throw error;
   return obtenerCarrito();
 };
 
-export const vaciarCarrito = () => saveAll(KEY, []);
+export const quitarDelCarrito = async (productoId) => {
+  const user = await getAuthUser();
+
+  const { error } = await insforge.database
+    .from("cart_items")
+    .delete()
+    .eq("producto_id", productoId)
+    .eq("usuario_id", user.id);
+  if (error) throw error;
+  return obtenerCarrito();
+};
+
+export const vaciarCarrito = async () => {
+  const user = await getAuthUser();
+
+  const { error } = await insforge.database
+    .from("cart_items")
+    .delete()
+    .eq("usuario_id", user.id);
+  if (error) throw error;
+};
+
