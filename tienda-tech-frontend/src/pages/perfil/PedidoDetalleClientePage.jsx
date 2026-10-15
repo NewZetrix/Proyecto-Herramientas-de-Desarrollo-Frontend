@@ -1,21 +1,52 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { obtenerPedido } from "../../services/pedidosService";
-import { listarProductos } from "../../services/productosService";
+import { obtenerProducto } from "../../services/productosService";
 import Sidebar from "../../components/layout/Sidebar";
+import {actualizarEstadoPedido} from "../../services/pedidosService";
 
 export default function PedidoDetalleClientePage() {
   const { id } = useParams();
-  const [pedido, setPedido] = useState(null);
+  const [pedido, setPedido] = useState({});
+  const [productos, setProductos] = useState([]);
+  const [nombreproducto, setNombreProducto] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
+  const ESTADO_COLORS = {
+  pendiente: "bg-amber-50 text-amber-700",
+  en_transito: "bg-blue-50 text-blue-700",
+  entregado: "bg-green-50 text-green-700",
+  cancelado: "bg-red-50 text-red-700",
+};
   useEffect(() => {
-    const p = obtenerPedido(id);
-    setPedido(p);
+  fetchPedido();
   }, [id]);
-
-  const nombreProducto = (productoId) => {
-    const producto = listarProductos().find((p) => p.id === productoId);
-    return producto ? producto.nombre : "Producto eliminado";
+  async function fetchPedido() {
+      try {
+        const pedidoData = await obtenerPedido(id);
+        const productosData = await Promise.all(
+          pedidoData.order_items.map(async (item) => {
+            const producto = await obtenerProducto(item.producto_id);
+            return { ...item, nombre: producto.nombre };
+          })
+        );
+        setCargando(false);
+        setPedido(pedidoData || []);
+        setProductos(pedidoData.order_items || []);
+        setNombreProducto(productosData.map((item) => item.nombre));
+      } catch (error) {
+        setError(error.message);
+        setCargando(false);
+      }
+    }
+  const handleCancelarPedido = async () => {
+    try {
+      await actualizarEstadoPedido(id, "cancelado");
+      fetchPedido();
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   if (!pedido) {
@@ -30,7 +61,18 @@ export default function PedidoDetalleClientePage() {
       </div>
     );
   }
-
+  if(error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 lg:pt-8 sm:px-6">
+        <div className="lg:flex lg:w-full">
+          <Sidebar />
+          <main className="lg:w-full lg:pl-8">
+            <p className="text-slate-500">Error: {error}</p>
+          </main>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 lg:pt-8 sm:px-6">
       <div className="lg:flex lg:w-full">
@@ -50,18 +92,25 @@ export default function PedidoDetalleClientePage() {
               <strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleDateString()}
             </p>
             <p className="text-sm text-slate-600">
-              <strong>Dirección de envío:</strong> {pedido.direccionEnvio}
+              <strong>Dirección de envío:</strong> {pedido.direccion_envio}
             </p>
             <p className="text-sm text-slate-600">
-              <strong>Método de pago:</strong> {pedido.metodoPago}
+              <strong>Método de pago:</strong> {pedido.metodo_pago}
             </p>
             <p className="text-sm text-slate-600">
               <strong>Estado:</strong>{" "}
-              <span className="badge">{pedido.estado}</span>
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${ESTADO_COLORS[pedido.estado] || "bg-slate-50 text-slate-600"}`}>
+                      {pedido.estado}
+        </span>
             </p>
             <p className="text-sm text-slate-600">
-              <strong>Total:</strong> S/ {pedido.total.toFixed(2)}
+              <strong>Total:</strong> S/ {pedido.total?.toFixed(2)}
             </p>
+            {pedido.estado === "pendiente" && (
+              <button onClick={handleCancelarPedido} className="btn bg-red-600 mt-4 hover:bg-red-700 text-white ">
+                Cancelar pedido
+              </button>
+            )}
           </div>
 
           <div className="overflow-x-auto card">
@@ -75,12 +124,12 @@ export default function PedidoDetalleClientePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {pedido.items.map((item, idx) => (
+                {productos.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="px-4 py-3 text-sm text-slate-800">{nombreProducto(item.productoId)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-800">{nombreproducto[idx]}</td>
                     <td className="px-4 py-3 text-sm text-slate-600">{item.cantidad}</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">S/ {item.precioUnitario.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-sm text-slate-800">S/ {(item.precioUnitario * item.cantidad).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600">S/ {item.precio_unitario.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-800">S/ {(item.precio_unitario * item.cantidad).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
