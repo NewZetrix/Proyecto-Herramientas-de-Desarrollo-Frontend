@@ -19,6 +19,8 @@ import PedidoDetalleClientePage from "./pages/perfil/PedidoDetalleClientePage";
 import CarritoPage from "./pages/carrito/CarritoPage";
 import CheckoutPage from "./pages/checkout/CheckoutPage";
 import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
+import PagoExitoPage from "./pages/checkout/PagoExitoPage";
+import PagoCanceladoPage from "./pages/checkout/PagoCanceladoPage";
 import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
 import PedidoDetallePage from "./pages/admin/pedidos/PedidoDetallePage";
 import DashboardPage from "./pages/admin/DashboardPage";
@@ -120,7 +122,9 @@ export default function App() {
         <Route path="/pedido-detalle/:id" element={<ProtectedRoute><PedidoDetalleClientePage /></ProtectedRoute>} />
 
         {/* Carrito / Checkout */}
-        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/carrito" element={<ProtectedRoute><CarritoPage /></ProtectedRoute>} />
+        <Route path="/pago-exito" element={<ProtectedRoute><PagoExitoPage /></ProtectedRoute>} />
+        <Route path="/pago-cancelado" element={<ProtectedRoute><PagoCanceladoPage /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/pedido/confirmacion" element={<ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
 
