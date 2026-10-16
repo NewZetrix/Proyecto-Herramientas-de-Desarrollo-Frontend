@@ -1,71 +1,140 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import FormField from "../../components/ui/FormField";
 import Button from "../../components/ui/Button";
 import { obtenerCarrito, vaciarCarrito } from "../../services/carritoService";
 import { obtenerProducto } from "../../services/productosService";
 import { crearPedido } from "../../services/pedidosService";
-import { usuarioActual } from "../../services/authService";
+import { crearCheckoutSession } from "../../services/pagoService";
+import { useAuth } from "../../contexts/AuthContext";
+import insforge from "../../services/insforgeClient";
+
 
 const METODOS_PAGO = [
-  "Tarjeta de crédito",
-  "Tarjeta de débito",
-  "Yape / Plin",
-  "Pago contra entrega",
+  { id: "stripe", label: "Tarjeta de crédito / débito (Stripe)" },
 ];
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const usuario = usuarioActual();
+  const { user, profile } = useAuth();
 
-  const carrito = obtenerCarrito();
-  const items = carrito
-    .map((item) => ({ ...item, producto: obtenerProducto(item.id) }))
-    .filter((item) => item.producto !== null);
-  const total = items.reduce((acc, i) => acc + i.producto.precio * i.cantidad, 0);
-
-  const [form, setForm] = useState({
-    direccion: usuario?.direccion ?? "",
-    metodoPago: METODOS_PAGO[0],
-  });
+  const [items, setItems] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [form, setForm] = useState({ direccion: "", metodoPago: "stripe" });
   const [error, setError] = useState("");
+  const [errorpedido, setErrorPedido] = useState("");
+  const [procesando, setProcesando] = useState(false);
 
-  // Si no hay nada en el carrito, no tiene sentido estar en checkout.
+  useEffect(() => {
+    async function cargar() {
+      try {
+        const carrito = await obtenerCarrito();
+        const itemsConProd = [];
+        for (const item of carrito) {
+          try {
+            const prod = await obtenerProducto(item.producto_id);
+            itemsConProd.push({ ...item, producto: prod });
+          } catch {
+            // skip
+          }
+        }
+        setItems(itemsConProd);
+        setForm({ direccion: profile?.direccion || "", metodoPago: "stripe" });
+      } catch {
+        // ignore
+      } finally {
+        setCargando(false);
+      }
+    }
+    cargar();
+  }, [profile]);
+
+  if (cargando) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        <h1 className="text-2xl">Finalizar compra</h1>
+        <p className="mt-6 text-slate-500">Cargando...</p>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return <Navigate to="/carrito" replace />;
-  }
+  } 
+  const total = items.reduce((acc, i) => acc + i.producto.precio * i.cantidad, 0);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.direccion.trim()) {
       setError("Ingresa una dirección de envío");
       return;
     }
 
-    const pedido = crearPedido({
-      usuarioId: usuario.id,
-      items: items.map((i) => ({
-        productoId: i.producto.id,
-        cantidad: i.cantidad,
-        precioUnitario: i.producto.precio,
-      })),
-      direccionEnvio: form.direccion.trim(),
-      metodoPago: form.metodoPago,
-    });
+    setProcesando(true);
+    try {
+      const pedido = await crearPedido({
+        usuarioId: user.id,
+        items: items.map((i) => ({
+          productoId: i.producto.id,
+          cantidad: i.cantidad,
+          precioUnitario: i.producto.precio,
+        })),
+        direccionEnvio: form.direccion.trim(),
+        metodoPago: form.metodoPago === "stripe" ? "Tarjeta de crédito" : METODOS_PAGO.find((m) => m.id === form.metodoPago)?.label || form.metodoPago,
+      });
 
-    vaciarCarrito();
-    navigate("/pedido/confirmacion", { state: { pedidoId: pedido.id } });
+      if (form.metodoPago === "stripe") {
+        const sessionData = await crearCheckoutSession({
+          pedidoId: pedido.id,
+          items: items.map((i) => ({
+            productoId: i.producto.id,
+            cantidad: i.cantidad,
+            usuarioId: user.id,
+            stripe_price_id: i.producto.stripe_price_id,
+          })),
+          userEmail: user.email,
+        });
+
+        await vaciarCarrito();
+
+        if (sessionData?.checkoutSession?.url) {
+          window.location.assign(sessionData.checkoutSession.url);
+        }
+        return;
+      }
+
+      await vaciarCarrito();
+
+      insforge.emails.send({
+        to: user.email,
+        subject: `Pedido #${pedido.id} confirmado`,
+        html: `
+          <h1>¡Gracias por tu compra!</h1>
+          <p>Tu pedido <strong>#${pedido.id}</strong> fue registrado correctamente.</p>
+          <p><strong>Dirección de envío:</strong> ${form.direccion.trim()}</p>
+          <p><strong>Método de pago:</strong> ${METODOS_PAGO.find((m) => m.id === form.metodoPago)?.label || form.metodoPago}</p>
+          <hr/>
+          <p><strong>Productos:</strong></p>
+          <ul>${items.map((i) => `<li>${i.producto.nombre} x ${i.cantidad} — S/ ${(i.producto.precio * i.cantidad).toFixed(2)}</li>`).join("")}</ul>
+          <p><strong>Total: S/ ${total.toFixed(2)}</strong></p>
+        `,
+      }).catch(() => {});
+
+      navigate("/pedido/confirmacion", { state: { pedidoId: pedido.id } });
+    } catch (err) {
+      setErrorPedido(err.message || "Error al procesar el pedido");
+      alert(errorpedido)
+      setProcesando(false);
+    }
   };
-
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <h1 className="text-2xl">Finalizar compra</h1>
-
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
         <form onSubmit={handleSubmit} className="card space-y-5 p-6" noValidate>
           <FormField
@@ -79,9 +148,7 @@ export default function CheckoutPage() {
           />
 
           <div>
-            <label className="field-label" htmlFor="metodoPago">
-              Método de pago
-            </label>
+            <label className="field-label" htmlFor="metodoPago">Método de pago</label>
             <select
               id="metodoPago"
               name="metodoPago"
@@ -90,15 +157,23 @@ export default function CheckoutPage() {
               className="field-input"
             >
               {METODOS_PAGO.map((metodo) => (
-                <option key={metodo} value={metodo}>
-                  {metodo}
-                </option>
+                <option key={metodo.id} value={metodo.id}>{metodo.label}</option>
               ))}
             </select>
           </div>
 
-          <Button type="submit" className="w-full">
-            Confirmar pedido
+          {form.metodoPago === "stripe" && (
+            <p className="text-xs text-slate-500">
+              Serás redirigido a Stripe para completar el pago de forma segura.
+            </p>
+          )}
+
+          <Button type="submit" className="w-full" disabled={procesando}>
+            {procesando
+              ? "Procesando..."
+              : form.metodoPago === "stripe"
+                ? "Pagar con Stripe"
+                : "Confirmar pedido"}
           </Button>
         </form>
 
@@ -107,9 +182,7 @@ export default function CheckoutPage() {
           <ul className="mt-4 space-y-2 text-sm text-slate-600">
             {items.map((i) => (
               <li key={i.id} className="flex justify-between gap-2">
-                <span>
-                  {i.producto.nombre} × {i.cantidad}
-                </span>
+                <span>{i.producto.nombre} × {i.cantidad}</span>
                 <span className="shrink-0">S/ {(i.producto.precio * i.cantidad).toFixed(2)}</span>
               </li>
             ))}
@@ -121,8 +194,5 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
-
-
-
   );
 }
