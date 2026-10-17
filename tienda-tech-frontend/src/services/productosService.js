@@ -1,5 +1,12 @@
 import insforge from "./insforgeClient";
 
+const BUCKET = "product-images";
+
+export const getImageUrl = (path) => {
+  const data = insforge.storage.from(BUCKET).getPublicUrl(path);
+  return data.data.publicUrl;
+};
+
 /** Mapea fila de DB (snake_case) → forma del frontend (camelCase) */
 const mapProducto = (row) => ({
   id: row.id,
