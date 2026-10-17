@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import insforge from "../services/insforgeClient";
+import { syncGuestCart } from "../services/carritoService";
 
 const AuthContext = createContext(null);
 
@@ -17,7 +18,7 @@ export function AuthProvider({ children }) {
         return profileData;
       }
     } catch {
-      // profile may not exist yet
+      // profile may not exist yet for new users
     }
     setProfile(null);
     return null;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }) {
       try {
         const { data, error } = await insforge.auth.getCurrentUser();
         if (cancelled) return;
+
         if (!error && data?.user) {
           setUser(data.user);
           await fetchProfile(data.user.id);
@@ -61,7 +63,7 @@ export function AuthProvider({ children }) {
     if (error) return { ok: false, error: error.message };
     setUser(data.user);
     await fetchProfile(data.user.id);
-    // P5: await syncGuestCart(data.user.id); -> se agrega en feature/carrito-sync
+    await syncGuestCart(data.user.id);
     return { ok: true, user: data.user };
   };
 
@@ -79,7 +81,7 @@ export function AuthProvider({ children }) {
     if (data?.accessToken) {
       setUser(data.user);
       await fetchProfile(data.user.id);
-      // P5: await syncGuestCart(data.user.id);
+      await syncGuestCart(data.user.id);
     }
     return { ok: true, user: data.user };
   };
@@ -90,7 +92,7 @@ export function AuthProvider({ children }) {
     if (data?.user) {
       setUser(data.user);
       await fetchProfile(data.user.id);
-      // P5: await syncGuestCart(data.user.id);
+      await syncGuestCart(data.user.id);
     }
     return { ok: true, user: data.user };
   };
