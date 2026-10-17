@@ -41,78 +41,17 @@ export default function App() {
         <Route path="/reset-password" element={<RestablecerPasswordPage />} />
 
         {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <AdminHomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/listado-usuario"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <UsuariosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/listado-pedido"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <PedidosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/detalle-pedido/:id"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <PedidoDetallePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/categorias"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <CategoriasPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos/nuevo"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductoFormPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos/editar/:id"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductoFormPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute rolRequerido="admin"><AdminLayout /></ProtectedRoute>}>
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/productos" element={<AdminProductosPage />} />
+            <Route path="/admin/productos/nuevo" element={<AdminProductoFormPage />} />
+            <Route path="/admin/productos/:id/editar" element={<AdminProductoFormPage />} />
+            <Route path="/admin/categorias" element={<AdminCategoriasPage />} />
+            <Route path="/admin/pedidos" element={<AdminPedidosPage />} />
+            <Route path="/admin/pedidos/:id" element={<AdminPedidoDetallePage />} />
+            <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
+        </Route>
 
         {/* Perfil */}
         <Route path="/perfil" element={<ProtectedRoute><PerfilPage /></ProtectedRoute>} />
