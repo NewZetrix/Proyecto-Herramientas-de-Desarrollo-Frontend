@@ -1,16 +1,55 @@
-# React + Vite
+# TechStore — Tienda de tecnología (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Proyecto académico de **Herramientas de Desarrollo Frontend**.  
+Es el prototipo de una tienda online de laptops, PCs y periféricos: catálogo, carrito, checkout, perfil de cliente y panel de administración.
 
-Currently, two official plugins are available:
+> **Esta entrega es solo frontend.** Los datos se guardan en el navegador (`localStorage`).  
+> El backend (Spring Boot) y la integración van en las siguientes etapas.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Demo en línea:** [https://proyecto-herramientas-de-desarrollo-pi.vercel.app](https://proyecto-herramientas-de-desarrollo-pi.vercel.app)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Cuentas de prueba
 
-## Expanding the ESLint configuration
+Usar estas cuentas en **Iniciar sesión** para recorrer el sistema:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Rol | Correo | Contraseña | Qué permite ver |
+|-----|--------|------------|-----------------|
+| **Cliente** | `ana@correo.com` | `123456` | Catálogo, carrito, checkout, perfil, historial de pedidos |
+| **Administrador** | `admin@tienda.com` | `admin123` | Panel admin: usuarios, productos, categorías, pedidos y dashboard |
+
+También existen otros clientes de ejemplo (`carlos@correo.com` / `carlos123`, etc.), pero con **Ana** y **Admin** alcanza para revisar todo.
+
+**Recorrido sugerido**
+
+1. Entrar como **Ana** → Catálogo → agrega un producto → Carrito → Finalizar compra.
+2. Cierra sesión y entra como **Admin** → Panel admin → Productos, Pedidos y Dashboard.
+
+---
+
+## Qué incluye
+
+**Cliente**
+- Inicio y catálogo (búsqueda, categoría, precio, orden, paginación)
+- Detalle de producto y carrito
+- Registro, login, recuperar / restablecer contraseña (simulado)
+- Perfil, editar datos, cambiar contraseña
+- Checkout y historial de pedidos
+
+**Administrador**
+- CRUD de productos y categorías
+- Gestión de usuarios (rol y estado)
+- Pedidos: ver detalle y cambiar estado
+- Dashboard de ventas (Recharts)
+
+---
+
+## Stack
+
+- React 19 + Vite
+- React Router
+- Tailwind CSS
+- Recharts (dashboard)
+
+La app está en la carpeta `tienda-tech-frontend/`.
