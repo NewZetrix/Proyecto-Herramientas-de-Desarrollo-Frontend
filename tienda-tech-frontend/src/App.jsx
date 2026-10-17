@@ -6,10 +6,7 @@ import CatalogoPage from "./pages/catalogo/CatalogoPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegistroPage from "./pages/auth/RegistroPage";
 import RecuperarPasswordPage from "./pages/auth/RecuperarPasswordPage";
-import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage";
-import UsuariosPage from "./pages/admin/usuarios/UsuariosPage";
-import PedidosPage from "./pages/admin/pedidos/PedidosPage";
-import AdminHomePage from "./pages/admin/AdminHomePage";
+import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage"
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import PerfilPage from "./pages/perfil/PerfilPage";
 import EditarPerfilPage from "./pages/perfil/EditarPerfilPage";
@@ -22,11 +19,15 @@ import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
 import PagoExitoPage from "./pages/checkout/PagoExitoPage";
 import PagoCanceladoPage from "./pages/checkout/PagoCanceladoPage";
 import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
-import PedidoDetallePage from "./pages/admin/pedidos/PedidoDetallePage";
-import DashboardPage from "./pages/admin/DashboardPage";
 import CategoriasPage from "./pages/admin/categorias/CategoriasPage";
 import ProductosPage from "./pages/admin/productos/ProductosPage";
 import ProductoFormPage from "./pages/admin/productos/ProductoFormPage";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminPedidosPage from "./pages/admin/AdminPedidosPage";
+import AdminPedidoDetallePage from "./pages/admin/AdminPedidoDetallePage";
+import AdminUsuariosPage from "./pages/admin/AdminUsuariosPage";
 
 export default function App() {
   return (
@@ -44,10 +45,10 @@ export default function App() {
         <Route element={<ProtectedRoute rolRequerido="admin"><AdminLayout /></ProtectedRoute>}>
             <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
-            <Route path="/admin/productos" element={<AdminProductosPage />} />
-            <Route path="/admin/productos/nuevo" element={<AdminProductoFormPage />} />
-            <Route path="/admin/productos/:id/editar" element={<AdminProductoFormPage />} />
-            <Route path="/admin/categorias" element={<AdminCategoriasPage />} />
+            <Route path="/admin/productos" element={<ProductosPage/>} />
+            <Route path="/admin/productos/nuevo" element={<ProductoFormPage/>} />
+            <Route path="/admin/productos/:id/editar" element={<ProductoFormPage/>} />
+            <Route path="/admin/categorias" element={<CategoriasPage/>} />
             <Route path="/admin/pedidos" element={<AdminPedidosPage />} />
             <Route path="/admin/pedidos/:id" element={<AdminPedidoDetallePage />} />
             <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
