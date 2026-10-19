@@ -6,6 +6,16 @@ Tienda en linea de productos tecnologicos construida con React e InsForge.
 
 Aplicacion SPA para una tienda de tecnología con catálogo de productos, carrito de compras, flujo de checkout, historial de pedidos y panel de administración completo.
 
+## Cuentas
+
+admin
+email:kolocor434@art2mart.com
+contraseña:qwe123
+
+cliente
+email:gattecrahoucreu-3350@yopmail.com
+contraseña:1234567
+
 ### Funcionalidades
 
 - **Catálogo**: listado de productos con búsqueda y filtro por categoría
