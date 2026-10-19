@@ -12,6 +12,9 @@ admin
 email:kolocor434@art2mart.com
 contraseña:qwe123
 
+## Pagina
+Link: https://techstore.lobotomi.dpdns.org/ 
+
 cliente
 email:gattecrahoucreu-3350@yopmail.com
 contraseña:1234567
