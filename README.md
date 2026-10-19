@@ -1,55 +1,30 @@
-# TechStore — Tienda de tecnología (Frontend)
+# TechStore - E-Commerce Frontend
 
-Proyecto académico de **Herramientas de Desarrollo Frontend**.  
-Es el prototipo de una tienda online de laptops, PCs y periféricos: catálogo, carrito, checkout, perfil de cliente y panel de administración.
+Tienda en linea de productos tecnologicos construida con React e InsForge.
 
-> **Esta entrega es solo frontend.** Los datos se guardan en el navegador (`localStorage`).  
-> El backend (Spring Boot) y la integración van en las siguientes etapas.
+## Description
 
-**Demo en línea:** [https://proyecto-herramientas-de-desarrollo-pi.vercel.app](https://proyecto-herramientas-de-desarrollo-pi.vercel.app)
+Aplicacion SPA para una tienda de tecnología con catálogo de productos, carrito de compras, flujo de checkout, historial de pedidos y panel de administración completo.
 
----
+### Funcionalidades
 
-## Cuentas de prueba
+- **Catálogo**: listado de productos con búsqueda y filtro por categoría
+- **Detalle de producto**: información, specs y imágenes
+- **Carrito**: agregar, modificar cantidad, eliminar items
+- **Checkout**: formulario de envío y método de pago (sin procesamiento de pago real)
+- **Pedidos**: confirmación, historial y gestión de estado
+- **Auth**: registro, login, verificación de email, recuperación de contraseña, OAuth (Google, GitHub)
+- **Perfil**: ver/editar datos, cambiar contraseña
+- **Admin Dashboard**: estadísticas, gestión de productos, categorías, pedidos y usuarios con sidebar
 
-Usar estas cuentas en **Iniciar sesión** para recorrer el sistema:
+## Tech Stack
 
-| Rol | Correo | Contraseña | Qué permite ver |
-|-----|--------|------------|-----------------|
-| **Cliente** | `ana@correo.com` | `123456` | Catálogo, carrito, checkout, perfil, historial de pedidos |
-| **Administrador** | `admin@tienda.com` | `admin123` | Panel admin: usuarios, productos, categorías, pedidos y dashboard |
+| Category | Tool |
+|----------|------|
+| Framework | [React 19](https://react.dev/) |
+| Bundler | [Vite 8](https://vite.dev/) |
+| Routing | [React Router 7](https://reactrouter.com/) |
+| Styling | [Tailwind CSS 3.4](https://tailwindcss.com/) |
+| Backend | [InsForge](https://insforge.dev) (Auth, Database, Storage) |
+| Language | JavaScript (ES Modules) |
 
-También existen otros clientes de ejemplo (`carlos@correo.com` / `carlos123`, etc.), pero con **Ana** y **Admin** alcanza para revisar todo.
-
-**Recorrido sugerido**
-
-1. Entrar como **Ana** → Catálogo → agrega un producto → Carrito → Finalizar compra.
-2. Cierra sesión y entra como **Admin** → Panel admin → Productos, Pedidos y Dashboard.
-
----
-
-## Qué incluye
-
-**Cliente**
-- Inicio y catálogo (búsqueda, categoría, precio, orden, paginación)
-- Detalle de producto y carrito
-- Registro, login, recuperar / restablecer contraseña (simulado)
-- Perfil, editar datos, cambiar contraseña
-- Checkout y historial de pedidos
-
-**Administrador**
-- CRUD de productos y categorías
-- Gestión de usuarios (rol y estado)
-- Pedidos: ver detalle y cambiar estado
-- Dashboard de ventas (Recharts)
-
----
-
-## Stack
-
-- React 19 + Vite
-- React Router
-- Tailwind CSS
-- Recharts (dashboard)
-
-La app está en la carpeta `tienda-tech-frontend/`.
