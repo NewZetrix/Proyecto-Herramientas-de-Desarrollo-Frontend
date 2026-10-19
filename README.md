@@ -6,14 +6,14 @@ Tienda en linea de productos tecnologicos construida con React e InsForge.
 
 Aplicacion SPA para una tienda de tecnología con catálogo de productos, carrito de compras, flujo de checkout, historial de pedidos y panel de administración completo.
 
+## Pagina
+Link: https://techstore.lobotomi.dpdns.org/ 
+
 ## Cuentas
 
 admin
 email:kolocor434@art2mart.com
 contraseña:qwe123
-
-## Pagina
-Link: https://techstore.lobotomi.dpdns.org/ 
 
 cliente
 email:gattecrahoucreu-3350@yopmail.com
