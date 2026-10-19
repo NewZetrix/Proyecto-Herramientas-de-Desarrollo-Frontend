@@ -8,34 +8,57 @@ export default function ProductosPage() {
   const [categorias, setCategorias] = useState([]);
   const [texto, setTexto] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const cargarDatos = async () => {
+    setLoading(true);
+    try {
+      const [prods, cats] = await Promise.all([listarProductos(), listarCategorias()]);
+      setProductos(prods);
+      setCategorias(cats);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setProductos(listarProductos());
-    setCategorias(listarCategorias());
+    cargarDatos();
   }, []);
 
-  const handleBuscar = () => {
-    const resultado = buscarProductos({
+  const handleBuscar = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const resultado = await buscarProductos({
       texto: texto.trim() || undefined,
       categoriaId: categoriaId || undefined,
     });
     setProductos(resultado);
+    setLoading(false);
   };
 
-  const handleLimpiar = () => {
+  const handleLimpiar = async () => {
     setTexto("");
     setCategoriaId("");
-    setProductos(listarProductos());
+    setLoading(true);
+    const prods = await listarProductos();
+    setProductos(prods);
+    setLoading(false);
   };
 
-  const handleEliminar = (producto) => {
+  const handleEliminar = async (producto) => {
     const confirmar = window.confirm(
       `¿Seguro que quieres eliminar el producto "${producto.nombre}"?`
     );
     if (!confirmar) return;
 
-    eliminarProducto(producto.id);
-    setProductos(listarProductos());
+    try {
+      await eliminarProducto(producto.id);
+      setProductos((prev) => prev.filter((p) => p.id !== producto.id));
+    } catch (err) {
+      alert("Error al eliminar el producto: " + err.message);
+    }
   };
 
   const obtenerNombreCategoria = (id) => {
@@ -45,12 +68,12 @@ export default function ProductosPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-surface min-h-screen">
-      <a
-        href="/admin"
+      <Link
+        to="/admin"
         className="inline-block mb-4 text-sm font-medium text-brand-600 hover:text-brand-800"
       >
         ← Volver al panel
-      </a>
+      </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="font-heading text-2xl font-semibold text-brand-800">
@@ -65,7 +88,7 @@ export default function ProductosPage() {
       </div>
 
       {/* Filtros */}
-      <div className="mb-6 p-4 rounded-lg border border-brand-100 bg-surface-card flex flex-col sm:flex-row gap-3">
+      <form onSubmit={handleBuscar} className="mb-6 p-4 rounded-lg border border-brand-100 bg-surface-card flex flex-col sm:flex-row gap-3">
         <input
           type="text"
           value={texto}
@@ -86,18 +109,19 @@ export default function ProductosPage() {
           ))}
         </select>
         <button
-          onClick={handleBuscar}
+          type="submit"
           className="px-4 py-2 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700"
         >
           Buscar
         </button>
         <button
+          type="button"
           onClick={handleLimpiar}
           className="px-4 py-2 rounded-md border border-brand-200 text-brand-600 text-sm font-medium hover:bg-brand-50"
         >
           Limpiar
         </button>
-      </div>
+      </form>
 
       {/* Tabla */}
       <div className="overflow-x-auto rounded-lg border border-brand-100 bg-surface-card">
@@ -122,12 +146,15 @@ export default function ProductosPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-50 bg-surface-card">
-            {productos.length === 0 ? (
+            {loading ? (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-4 py-6 text-center text-sm text-brand-500"
-                >
+                <td colSpan="5" className="px-4 py-6 text-center text-sm text-brand-500">
+                  Cargando productos...
+                </td>
+              </tr>
+            ) : productos.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="px-4 py-6 text-center text-sm text-brand-500">
                   No se encontraron productos
                 </td>
               </tr>

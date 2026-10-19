@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   listarCategorias,
   crearCategoria,
@@ -10,9 +11,17 @@ export default function CategoriasPage() {
   const [categorias, setCategorias] = useState([]);
   const [nombre, setNombre] = useState("");
   const [editandoId, setEditandoId] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const cargarCategorias = async () => {
+    setLoading(true);
+    const data = await listarCategorias();
+    setCategorias(data);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setCategorias(listarCategorias());
+    cargarCategorias();
   }, []);
 
   const limpiarFormulario = () => {
@@ -20,18 +29,22 @@ export default function CategoriasPage() {
     setEditandoId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!nombre.trim()) return;
 
-    if (editandoId) {
-      editarCategoria(editandoId, { nombre: nombre.trim() });
-    } else {
-      crearCategoria({ nombre: nombre.trim() });
-    }
+    try {
+      if (editandoId) {
+        await editarCategoria(editandoId, { nombre: nombre.trim() });
+      } else {
+        await crearCategoria({ nombre: nombre.trim() });
+      }
 
-    setCategorias(listarCategorias());
-    limpiarFormulario();
+      await cargarCategorias();
+      limpiarFormulario();
+    } catch (err) {
+      alert("Error al guardar categoría: " + err.message);
+    }
   };
 
   const handleEditar = (categoria) => {
@@ -39,24 +52,28 @@ export default function CategoriasPage() {
     setEditandoId(categoria.id);
   };
 
-  const handleEliminar = (categoria) => {
+  const handleEliminar = async (categoria) => {
     const confirmar = window.confirm(
       `¿Seguro que quieres eliminar la categoría "${categoria.nombre}"?`
     );
     if (!confirmar) return;
 
-    eliminarCategoria(categoria.id);
-    setCategorias(listarCategorias());
+    try {
+      await eliminarCategoria(categoria.id);
+      await cargarCategorias();
+    } catch (err) {
+      alert("Error al eliminar la categoría: " + err.message);
+    }
   };
 
   return (
     <div className="p-6 max-w-5xl mx-auto bg-surface min-h-screen">
-      <a
-        href="/admin"
+      <Link
+        to="/admin"
         className="inline-block mb-4 text-sm font-medium text-brand-600 hover:text-brand-800"
       >
         ← Volver al panel
-      </a>
+      </Link>
 
       <h1 className="font-heading text-2xl font-semibold text-brand-800 mb-6">
         Administración de Categorías
@@ -115,12 +132,15 @@ export default function CategoriasPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-50 bg-surface-card">
-            {categorias.length === 0 ? (
+            {loading ? (
               <tr>
-                <td
-                  colSpan="3"
-                  className="px-4 py-6 text-center text-sm text-brand-500"
-                >
+                <td colSpan="3" className="px-4 py-6 text-center text-sm text-brand-500">
+                  Cargando categorías...
+                </td>
+              </tr>
+            ) : categorias.length === 0 ? (
+              <tr>
+                <td colSpan="3" className="px-4 py-6 text-center text-sm text-brand-500">
                   No hay categorías registradas
                 </td>
               </tr>

@@ -1,20 +1,35 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { usuarioActual, cerrarSesion } from "../../services/authService";
-import { obtenerCarrito } from "../../services/carritoService";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { obtenerCarrito, getGuestCartCount, onGuestCartUpdate } from "../../services/carritoService";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const usuario = usuarioActual();
-  const cantidadCarrito = obtenerCarrito().reduce((acc, item) => acc + item.cantidad, 0);
-
+  const { user, profile, loading, isAuthenticated, isAdmin, logout } = useAuth();
+  const [cantidadCarrito, setCantidadCarrito] = useState(() => getGuestCartCount());
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const ctrl = { cancelled: false };  
+    if (!isAuthenticated) {
+      const unsub = onGuestCartUpdate(() => {
+        if (!ctrl.cancelled) setCantidadCarrito(getGuestCartCount());
+      });
+      return () => { ctrl.cancelled = true; unsub(); };
+    }
+
+    obtenerCarrito()
+      .then((items) => {
+        if (!ctrl.cancelled) setCantidadCarrito(items.reduce((acc, i) => acc + i.cantidad, 0));
+      })
+      .catch(() => {});
+    return () => { ctrl.cancelled = true; };
+  }, [isAuthenticated,navigate]);
 
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
-  const handleLogout = () => {
-    cerrarSesion();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -32,12 +47,12 @@ export default function Navbar() {
           <Link to="/catalogo" className="text-sm font-medium text-slate-600 hover:text-brand-700">
             Catálogo
           </Link>
-          {usuario?.rol === "admin" && (
+          {isAdmin && (
             <Link to="/admin" className="text-sm font-medium text-slate-600 hover:text-brand-700">
               Panel admin
             </Link>
           )}
-          {usuario && (
+          {isAuthenticated && (
             <Link to="/perfil" className="text-sm font-medium text-slate-600 hover:text-brand-700">
               Perfil
             </Link>
@@ -45,41 +60,34 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          {usuario?.rol != "admin" && (
-            <Link to="/carrito" className="btn-ghost relative">
-              Carrito
-              {cantidadCarrito > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent-500 text-[10px] font-semibold text-white">
-                  {cantidadCarrito}
-                </span>
-              )}
-            </Link>
-          )}
-          {usuario ? (
+          <Link to="/carrito" className="btn-ghost relative">
+            Carrito
+            {cantidadCarrito > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent-500 text-[10px] font-semibold text-white">
+                {cantidadCarrito}
+              </span>
+            )}
+          </Link>
+
+          {loading ? (
+            <div className="h-8 w-24 animate-pulse rounded-lg bg-slate-200" />
+          ) : isAuthenticated ? (
             <>
               <span className="hidden text-sm text-slate-600 sm:inline">
-                Hola, {usuario.nombre.split(" ")[0]}
+                Hola, {(profile?.nombre || user?.email || "").split(" ")[0]}
               </span>
               <div className="relative">
                 <button
                   onClick={handleDropdownToggle}
-                  className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-brand-700 rounded-lg px-2 py-1.5 bg-white border border-slate-200"
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm font-medium text-slate-600 hover:text-brand-700"
                 >
                   Mi cuenta
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path d="M6 9l6 6 6-6" />
                   </svg>
                 </button>
                 {showDropdown && (
-                  <div
-                    className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-2 min-w max-w-xs z-20"
-                  >
+                  <div className="absolute right-0 z-20 mt-2 min-w-max w-48 rounded-lg border border-slate-200 bg-white py-2 shadow-lg">
                     <Link to="/perfil" onClick={handleDropdownToggle} className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
                       Perfil
                     </Link>
@@ -93,7 +101,7 @@ export default function Navbar() {
                       Historial de pedidos
                     </Link>
                     <hr className="my-1 border-t border-slate-200" />
-                    <button onClick={handleLogout} className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                    <button onClick={handleLogout} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">
                       Cerrar sesión
                     </button>
                   </div>

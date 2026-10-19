@@ -6,10 +6,7 @@ import CatalogoPage from "./pages/catalogo/CatalogoPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegistroPage from "./pages/auth/RegistroPage";
 import RecuperarPasswordPage from "./pages/auth/RecuperarPasswordPage";
-import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage";
-import UsuariosPage from "./pages/admin/usuarios/UsuariosPage";
-import PedidosPage from "./pages/admin/pedidos/PedidosPage";
-import AdminHomePage from "./pages/admin/AdminHomePage";
+import RestablecerPasswordPage from "./pages/auth/RestablecerPasswordPage"
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import PerfilPage from "./pages/perfil/PerfilPage";
 import EditarPerfilPage from "./pages/perfil/EditarPerfilPage";
@@ -19,12 +16,18 @@ import PedidoDetalleClientePage from "./pages/perfil/PedidoDetalleClientePage";
 import CarritoPage from "./pages/carrito/CarritoPage";
 import CheckoutPage from "./pages/checkout/CheckoutPage";
 import ConfirmacionPedidoPage from "./pages/checkout/ConfirmacionPedidoPage";
+import PagoExitoPage from "./pages/checkout/PagoExitoPage";
+import PagoCanceladoPage from "./pages/checkout/PagoCanceladoPage";
 import ProductoDetallePage from "./pages/productos/ProductoDetallePage";
-import PedidoDetallePage from "./pages/admin/pedidos/PedidoDetallePage";
-import DashboardPage from "./pages/admin/DashboardPage";
 import CategoriasPage from "./pages/admin/categorias/CategoriasPage";
 import ProductosPage from "./pages/admin/productos/ProductosPage";
 import ProductoFormPage from "./pages/admin/productos/ProductoFormPage";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminPedidosPage from "./pages/admin/AdminPedidosPage";
+import AdminPedidoDetallePage from "./pages/admin/AdminPedidoDetallePage";
+import AdminUsuariosPage from "./pages/admin/AdminUsuariosPage";
 
 export default function App() {
   return (
@@ -39,78 +42,17 @@ export default function App() {
         <Route path="/reset-password" element={<RestablecerPasswordPage />} />
 
         {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <AdminHomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/listado-usuario"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <UsuariosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/listado-pedido"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <PedidosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/detalle-pedido/:id"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <PedidoDetallePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/categorias"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <CategoriasPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos/nuevo"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductoFormPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/productos/editar/:id"
-          element={
-            <ProtectedRoute rolRequerido="admin">
-              <ProductoFormPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute rolRequerido="admin"><AdminLayout /></ProtectedRoute>}>
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/productos" element={<ProductosPage/>} />
+            <Route path="/admin/productos/nuevo" element={<ProductoFormPage/>} />
+            <Route path="/admin/productos/:id/editar" element={<ProductoFormPage/>} />
+            <Route path="/admin/categorias" element={<CategoriasPage/>} />
+            <Route path="/admin/pedidos" element={<AdminPedidosPage />} />
+            <Route path="/admin/pedidos/:id" element={<AdminPedidoDetallePage />} />
+            <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
+        </Route>
 
         {/* Perfil */}
         <Route path="/perfil" element={<ProtectedRoute><PerfilPage /></ProtectedRoute>} />
@@ -120,7 +62,9 @@ export default function App() {
         <Route path="/pedido-detalle/:id" element={<ProtectedRoute><PedidoDetalleClientePage /></ProtectedRoute>} />
 
         {/* Carrito / Checkout */}
-        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/carrito" element={<ProtectedRoute><CarritoPage /></ProtectedRoute>} />
+        <Route path="/pago-exito" element={<ProtectedRoute><PagoExitoPage /></ProtectedRoute>} />
+        <Route path="/pago-cancelado" element={<ProtectedRoute><PagoCanceladoPage /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/pedido/confirmacion" element={<ProtectedRoute><ConfirmacionPedidoPage /></ProtectedRoute>} />
 
