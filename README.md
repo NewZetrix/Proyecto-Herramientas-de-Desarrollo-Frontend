@@ -28,3 +28,87 @@ Aplicacion SPA para una tienda de tecnología con catálogo de productos, carrit
 | Backend | [InsForge](https://insforge.dev) (Auth, Database, Storage) |
 | Language | JavaScript (ES Modules) |
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- An InsForge project (or use the provided demo credentials)
+
+### Install
+
+```bash
+cd vite-ecomerse
+npm install
+```
+
+### Environment Variables
+
+Copy the example and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format with Prettier |
+
+## Project Structure
+
+```
+vite-ecomerse/
+├── src/
+│   ├── components/
+│   │   ├── admin/          # Admin dashboard (sidebar, layout, pages)
+│   │   ├── layout/         # Navbar, Footer, ProtectedRoute, Sidebar
+│   │   ├── productos/      # ProductCard
+│   │   └── ui/             # Button, FormField
+│   ├── contexts/
+│   │   └── AuthContext.jsx # Auth state management
+│   ├── pages/
+│   │   ├── admin/          # Admin pages (dashboard, products, categories, orders, users)
+│   │   ├── carrito/        # Cart page
+│   │   ├── checkout/       # Checkout + order confirmation
+│   │   └── perfil/         # Profile, edit profile, change password, order history
+│   ├── services/
+│   │   ├── insforgeClient.js   # InsForge SDK singleton
+│   │   ├── authService.js      # Auth functions (login, register, etc.)
+│   │   ├── productosService.js # Products CRUD
+│   │   ├── categoriasService.js# Categories CRUD
+│   │   ├── pedidosService.js   # Orders CRUD
+│   │   ├── carritoService.js   # Cart CRUD
+│   │   └── adminService.js     # Admin operations (stats, users, role changes)
+│   ├── App.jsx
+│   └── main.jsx
+├── .env.example
+└── package.json
+```
+
+## Backend
+
+This project uses [InsForge](https://insforge.dev) as backend:
+
+- **Auth**: email/password + OAuth (Google, GitHub), email verification, password reset
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Storage**: product images (`product-images` bucket)
+
+Database schema and seed data are in `migrations/`.
