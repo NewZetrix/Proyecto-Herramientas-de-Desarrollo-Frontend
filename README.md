@@ -125,3 +125,4 @@ This project uses [InsForge](https://insforge.dev) as backend:
 - **Storage**: product images (`product-images` bucket)
 
 Database schema and seed data are in `migrations/`.
+.
