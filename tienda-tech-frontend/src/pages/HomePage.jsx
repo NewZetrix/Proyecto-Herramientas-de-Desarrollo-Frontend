@@ -1,25 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { listarCategorias } from "../services/categoriasService";
 
 export default function HomePage() {
   const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listarCategorias()
-      .then((data) => setCategorias(data ?? []))
-      .catch(() => setCategorias([]))
-      .finally(() => setLoading(false));
+    listarCategorias().then(setCategorias).catch(() => {});
   }, []);
 
   return (
     <div>
       <section className="bg-brand-900">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <p className="badge bg-brand-800 text-brand-100">
-            Tecnología para estudiar, trabajar y jugar
-          </p>
+          <p className="badge bg-brand-800 text-brand-100">Tecnología para estudiar, trabajar y jugar</p>
           <h1 className="mt-4 max-w-xl text-4xl text-white sm:text-5xl">
             Laptops, PCs y periféricos al mejor precio
           </h1>
@@ -34,26 +28,17 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <h2 className="mb-6 text-2xl">Categorías</h2>
-
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-          </div>
-        ) : categorias.length === 0 ? (
-          <p className="text-slate-500">No hay categorías disponibles.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {categorias.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/catalogo?categoria=${cat.id}`}
-                className="card flex items-center justify-center px-4 py-8 text-center font-medium text-brand-800 hover:border-brand-300 hover:shadow-md transition"
-              >
-                {cat.nombre}
-              </Link>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {categorias.map((cat) => (
+            <Link
+              key={cat.id}
+              to={`/catalogo?categoria=${cat.id}`}
+              className="card flex items-center justify-center px-4 py-8 text-center font-medium text-brand-800 hover:border-brand-300 hover:shadow-md transition"
+            >
+              {cat.nombre}
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );

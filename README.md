@@ -6,6 +6,9 @@ Tienda en linea de productos tecnologicos construida con React e InsForge.
 
 Aplicacion SPA para una tienda de tecnología con catálogo de productos, carrito de compras, flujo de checkout, historial de pedidos y panel de administración completo.
 
+## Pagina
+Link: https://techstore.lobotomi.dpdns.org/ 
+
 ## Cuentas
 
 admin
@@ -122,3 +125,4 @@ This project uses [InsForge](https://insforge.dev) as backend:
 - **Storage**: product images (`product-images` bucket)
 
 Database schema and seed data are in `migrations/`.
+.

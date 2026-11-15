@@ -8,11 +8,9 @@ import ProductPagination from "../../components/productos/ProductPagination";
 
 export default function CatalogoPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [categorias, setCategorias] = useState([]);
-  const [productos, setProductos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [todosProductos, setTodosProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
   const [texto, setTexto] = useState("");
   const categoriaId = searchParams.get("categoria") ?? "";
@@ -22,68 +20,44 @@ export default function CatalogoPage() {
 
   const productosPorPagina = 6;
 
-  // Cargar categorías una vez
   useEffect(() => {
-    listarCategorias()
-      .then((data) => setCategorias(data ?? []))
-      .catch(() => setCategorias([]));
-  }, []);
+    async function cargar() {
+      try {
+        const [cats, prods] = await Promise.all([
+          listarCategorias(),
+          buscarProductos({
+            texto: texto.trim() || undefined,
+            categoriaId: categoriaId || undefined,
+            precioMax: precioMax ? Number(precioMax) : undefined,
+          }),
+        ]);
+        setCategorias(cats);
+        setTodosProductos(prods);
+      } catch {
+        // ignore
+      } finally {
+        setCargando(false);
+      }
+    }
+    cargar();
+  }, [texto, categoriaId, precioMax]);
 
-  // Buscar productos cuando cambian filtros u orden
-  useEffect(() => {
-    let cancelado = false;
-    setLoading(true);
-    setError("");
+  const productos = (() => {
+    switch (orden) {
+      case "precioAsc":
+        return [...todosProductos].sort((a, b) => a.precio - b.precio);
+      case "precioDesc":
+        return [...todosProductos].sort((a, b) => b.precio - a.precio);
+      case "nombreAsc":
+        return [...todosProductos].sort((a, b) => a.nombre.localeCompare(b.nombre));
+      case "nombreDesc":
+        return [...todosProductos].sort((a, b) => b.nombre.localeCompare(a.nombre));
+      default:
+        return todosProductos;
+    }
+  })();
 
-    buscarProductos({
-      texto: texto.trim() || undefined,
-      categoriaId: categoriaId || undefined,
-      precioMax: precioMax ? Number(precioMax) : undefined,
-    })
-      .then((resultado) => {
-        if (cancelado) return;
-
-        let lista = resultado ?? [];
-
-        switch (orden) {
-          case "precioAsc":
-            lista = [...lista].sort((a, b) => a.precio - b.precio);
-            break;
-          case "precioDesc":
-            lista = [...lista].sort((a, b) => b.precio - a.precio);
-            break;
-          case "nombreAsc":
-            lista = [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre));
-            break;
-          case "nombreDesc":
-            lista = [...lista].sort((a, b) => b.nombre.localeCompare(a.nombre));
-            break;
-          default:
-            break;
-        }
-
-        setProductos(lista);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (cancelado) return;
-        console.error(err);
-        setError("No se pudieron cargar los productos");
-        setProductos([]);
-        setLoading(false);
-      });
-
-    return () => {
-      cancelado = true;
-    };
-  }, [texto, categoriaId, precioMax, orden]);
-
-  // Reset página al cambiar filtros
-  useEffect(() => {
-    setPaginaActual(1);
-  }, [texto, categoriaId, precioMax, orden]);
-
-  const totalPaginas = Math.max(1, Math.ceil(productos.length / productosPorPagina));
+  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
   const indiceInicio = (paginaActual - 1) * productosPorPagina;
   const productosPagina = productos.slice(indiceInicio, indiceInicio + productosPorPagina);
 
@@ -100,7 +74,22 @@ export default function CatalogoPage() {
     setTexto("");
     setPrecioMax("");
     setSearchParams({});
+    setPaginaActual(1);
   };
+
+  const handleCategoriaWithReset = (id) => {
+    handleCategoria(id);
+    setPaginaActual(1);
+  };
+
+  if (cargando) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <h1 className="text-2xl">Catálogo de productos</h1>
+        <p className="mt-6 text-slate-500">Cargando productos...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -109,9 +98,7 @@ export default function CatalogoPage() {
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[220px_1fr]">
         <aside className="space-y-6">
           <div>
-            <label className="field-label" htmlFor="buscador">
-              Buscar
-            </label>
+            <label className="field-label" htmlFor="buscador">Buscar</label>
             <input
               id="buscador"
               type="text"
@@ -126,11 +113,9 @@ export default function CatalogoPage() {
             <p className="field-label">Categoría</p>
             <div className="space-y-1.5">
               <button
-                onClick={() => handleCategoria("")}
+                onClick={() => handleCategoriaWithReset("")}
                 className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-sm ${
-                  !categoriaId
-                    ? "bg-brand-50 font-medium text-brand-700"
-                    : "text-slate-600 hover:bg-slate-50"
+                  !categoriaId ? "bg-brand-50 font-medium text-brand-700" : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 Todas
@@ -138,11 +123,9 @@ export default function CatalogoPage() {
               {categorias.map((cat) => (
                 <button
                   key={cat.id}
-                  onClick={() => handleCategoria(cat.id)}
+                  onClick={() => handleCategoriaWithReset(cat.id)}
                   className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-sm ${
-                    categoriaId === cat.id
-                      ? "bg-brand-50 font-medium text-brand-700"
-                      : "text-slate-600 hover:bg-slate-50"
+                    categoriaId === cat.id ? "bg-brand-50 font-medium text-brand-700" : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   {cat.nombre}
@@ -152,9 +135,7 @@ export default function CatalogoPage() {
           </div>
 
           <div>
-            <label className="field-label" htmlFor="precioMax">
-              Precio máximo (S/)
-            </label>
+            <label className="field-label" htmlFor="precioMax">Precio máximo (S/)</label>
             <input
               id="precioMax"
               type="number"
@@ -173,52 +154,34 @@ export default function CatalogoPage() {
 
         <div>
           <div className="mb-4 flex justify-end">
-            <ProductSort orden={orden} onOrdenChange={setOrden} />
+            <ProductSort orden={orden} onOrdenChange={(v) => { setOrden(v); setPaginaActual(1); }} />
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-16">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
+          <p className="mb-4 text-sm text-slate-500">{productos.length} productos encontrados</p>
+
+          {productos.length === 0 ? (
+            <div className="card flex flex-col items-center justify-center gap-2 py-16 text-center">
+              <p className="font-medium text-slate-700">No encontramos productos con esos filtros</p>
+              <button onClick={limpiarFiltros} className="text-sm text-brand-600 hover:underline">
+                Quitar filtros
+              </button>
             </div>
-          ) : error ? (
-            <div className="card py-16 text-center text-red-600">{error}</div>
           ) : (
             <>
-              <p className="mb-4 text-sm text-slate-500">
-                {productos.length} productos encontrados
-              </p>
-
-              {productos.length === 0 ? (
-                <div className="card flex flex-col items-center justify-center gap-2 py-16 text-center">
-                  <p className="font-medium text-slate-700">
-                    No encontramos productos con esos filtros
-                  </p>
-                  <button
-                    onClick={limpiarFiltros}
-                    className="text-sm text-brand-600 hover:underline"
-                  >
-                    Quitar filtros
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                    {productosPagina.map((producto) => (
-                      <ProductCard
-                        key={producto.id}
-                        producto={producto}
-                        categoriaNombre={categoriaNombre(producto.categoriaId)}
-                      />
-                    ))}
-                  </div>
-
-                  <ProductPagination
-                    paginaActual={paginaActual}
-                    totalPaginas={totalPaginas}
-                    onPaginaChange={setPaginaActual}
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {productosPagina.map((producto) => (
+                  <ProductCard
+                    key={producto.id}
+                    producto={producto}
+                    categoriaNombre={categoriaNombre(producto.categoria_id)}
                   />
-                </>
-              )}
+                ))}
+              </div>
+              <ProductPagination
+                paginaActual={paginaActual}
+                totalPaginas={totalPaginas}
+                onPaginaChange={setPaginaActual}
+              />
             </>
           )}
         </div>
