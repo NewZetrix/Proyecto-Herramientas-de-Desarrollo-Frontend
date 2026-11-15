@@ -1,178 +1,221 @@
 import insforge from "./insforgeClient";
 
-const GUEST_CART_KEY = "guest_cart";
+// Login with email and password
+export const login = async (correo, password) => {
+  const { data, error } = await insforge.auth.signInWithPassword({
+    email: correo,
+    password,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, usuario: data.user };
+};
 
-async function getAuthUser() {
+// ---------------------------------------------------------------------------
+// Perfil pendiente de registro
+//
+// Con "verificación de correo obligatoria" habilitada, signUp() NO devuelve
+// accessToken ( accessToken: null ), así que setProfile() (PATCH
+// /api/auth/profiles/current) responde 401: el perfil del formulario no se puede
+// guardar en ese momento. En su lugar guardamos los datos y los aplicamos en
+// cuanto el usuario verifica su correo (o, como red de seguridad, en el próximo
+// inicio de sesión / carga de la app).
+// ---------------------------------------------------------------------------
+const PENDING_PROFILE_KEY = "pending_profile";
+
+const guardarPerfilPendiente = (email, perfil) => {
   try {
-    const { data, error } = await insforge.auth.getCurrentUser();
-    if (!error && data?.user) return data.user;
-  } catch (err) {
+    // localStorage sobrevive a cerrar la pestaña; sessionStorage no.
+    localStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify({ email, perfil }));
+  } catch {
+    // sin storage disponible: se reintenta en el próximo flujo de registro
+  }
+};
+
+const leerPerfilPendiente = (email) => {
+  let raw = null;
+  try {
+    raw = localStorage.getItem(PENDING_PROFILE_KEY) || sessionStorage.getItem(PENDING_PROFILE_KEY);
+  } catch {
     return null;
   }
-  return null;
-}
-
-function getGuestCart() {
+  if (!raw) return null;
   try {
-    return JSON.parse(localStorage.getItem(GUEST_CART_KEY)) || [];
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object") return null;
+    // Formato actual: { email, perfil }
+    if (data.perfil) {
+      if (data.email && email && data.email !== email) return null; // pertenece a otra cuenta
+      return data.perfil;
+    }
+    // Formato anterior: el perfil plano directamente
+    return data;
   } catch {
-    return [];
+    return null;
   }
-}
-
-function setGuestCart(cart) {
-  localStorage.setItem(GUEST_CART_KEY, JSON.stringify(cart));
-  window.dispatchEvent(new Event("guest-cart-updated"));
-}
-
-export function getGuestCartCount() {
-  return getGuestCart().reduce((acc, i) => acc + i.cantidad, 0);
-}
-
-export function onGuestCartUpdate(callback) {
-  window.addEventListener("guest-cart-updated", callback);
-  return () => window.removeEventListener("guest-cart-updated", callback);
-}
-
-export const obtenerCarrito = async () => {
-  const user = await getAuthUser();
-  if (!user) return getGuestCart();
-
-  const { data, error } = await insforge.database
-    .from("cart_items")
-    .select("*")
-    .order("created_at");
-  if (error) throw error;
-  return data || [];
 };
 
-export const obtenerCarritobyidproducto = async (productoId) => {
-  const user = await getAuthUser();
-  if (!user) return getGuestCart().find((i) => i.producto_id === productoId);
-
-  const { data, error } = await insforge.database
-    .from("cart_items")
-    .select("*")
-    .order("created_at")
-    .eq("producto_id", productoId)
-    .maybeSingle();
-  if (error) throw error;
-  return data;
+const limpiarPerfilPendiente = () => {
+  try {
+    localStorage.removeItem(PENDING_PROFILE_KEY);
+    sessionStorage.removeItem(PENDING_PROFILE_KEY);
+  } catch {
+    // ignorar
+  }
 };
 
-export const agregarAlCarrito = async (productoId, cantidad = 1) => {
-  const user = await getAuthUser();
+// Campos que completa el formulario de registro. `name` es el campo nativo de
+// InsForge (lo leen Perfil / Editar perfil / Usuarios) y `nombre` lo leen el
+// Navbar y el panel admin: se guardan ambos para que la UI siempre muestre el
+// dato sin importar dónde se haya escrito antes.
+const armarPerfil = ({ nombre, telefono, direccion }) => ({
+  name: nombre,
+  nombre,
+  telefono: telefono || "",
+  direccion: direccion || "",
+  rol: "cliente",
+});
 
-  if (!user) {
-    const cart = getGuestCart();
-    const existing = cart.find((i) => i.producto_id === productoId);
-    if (existing) {
-      existing.cantidad += cantidad;
-    } else {
-      cart.push({ producto_id: productoId, cantidad, usuario_id: null });
-    }
-    setGuestCart(cart);
-    return;
-  }
+// Aplica (si existe) el perfil guardado durante el registro. Devuelve
+// { ok, aplicado, error } y solo limpia el pendiente cuando se guardó bien.
+export const aplicarPerfilPendiente = async (email) => {
+  const perfil = leerPerfilPendiente(email);
+  if (!perfil) return { ok: true, aplicado: false };
 
-  const { data: existing } = await insforge.database
-    .from("cart_items")
-    .select()
-    .eq("producto_id", productoId)
-    .eq("usuario_id", user.id)
-    .maybeSingle();
-  if (existing) {
-    const { error } = await insforge.database
-      .from("cart_items")
-      .update({ cantidad: existing.cantidad + cantidad })
-      .eq("id", existing.id);
-    if (error) throw error;
-  } else {
-    const { error } = await insforge.database
-      .from("cart_items")
-      .insert({ producto_id: productoId, cantidad, usuario_id: user.id });
-    if (error) throw error;
-  }
+  const { error } = await insforge.auth.setProfile(perfil);
+  if (error) return { ok: false, aplicado: false, error: error.message };
 
-  return;
+  limpiarPerfilPendiente();
+  return { ok: true, aplicado: true };
 };
 
-export const cambiarCantidad = async (productoId, cantidad) => {
-  const user = await getAuthUser();
+// Register a new user
+export const registrar = async ({ nombre, correo, password, telefono, direccion }) => {
+  const perfil = armarPerfil({ nombre, telefono, direccion });
 
-  if (!user) {
-    const cart = getGuestCart();
-    const item = cart.find((i) => i.producto_id === productoId);
-    if (item) item.cantidad = cantidad;
-    setGuestCart(cart);
-    return cart;
+  const { data, error } = await insforge.auth.signUp({
+    email: correo,
+    password,
+    name: nombre,
+    redirectTo: window.location.origin + "/login",
+  });
+  if (error) return { ok: false, error: error.message };
+
+  // Sin sesión no se puede escribir el perfil: se encola hasta verificar.
+  if (data?.requireEmailVerification || !data?.accessToken) {
+    guardarPerfilPendiente(correo, perfil);
+    return {
+      ok: true,
+      requireEmailVerification: !!data?.requireEmailVerification,
+      email: correo,
+    };
   }
 
-  const { error } = await insforge.database
-    .from("cart_items")
-    .update({ cantidad })
-    .eq("producto_id", productoId)
-    .eq("usuario_id", user.id);
-  if (error) throw error;
-  return obtenerCarrito();
+  // Verificación deshabilitada: hay sesión, se guarda el perfil ahora.
+  const { error: profileError } = await insforge.auth.setProfile(perfil);
+  if (profileError) {
+    // Si falla (p. ej. red), no se pierde el dato: se aplica en el próximo login.
+    guardarPerfilPendiente(correo, perfil);
+    return { ok: true, usuario: data?.user ?? null, perfilPendiente: true };
+  }
+
+  return { ok: true, usuario: data?.user ?? null };
 };
 
-export const quitarDelCarrito = async (productoId) => {
-  const user = await getAuthUser();
+// Verify email with OTP code
+export const verificarEmail = async (email, otp) => {
+  const { data, error } = await insforge.auth.verifyEmail({ email, otp });
+  if (error) return { ok: false, error: error.message };
 
-  if (!user) {
-    const cart = getGuestCart().filter((i) => i.producto_id !== productoId);
-    setGuestCart(cart);
-    return cart;
-  }
+  // El correo verificado implica sesión (accessToken): aquí sí se puede guardar
+  // el formulario de perfil que se completó en el registro.
+  const perfil = await aplicarPerfilPendiente(email);
 
-  const { error } = await insforge.database
-    .from("cart_items")
-    .delete()
-    .eq("producto_id", productoId)
-    .eq("usuario_id", user.id);
-  if (error) throw error;
-  return obtenerCarrito();
+  return {
+    ok: true,
+    usuario: data?.user ?? null,
+    perfilGuardado: perfil.aplicado,
+    avisoPerfil: perfil.ok ? "" : `No se pudo guardar el perfil: ${perfil.error}`,
+  };
 };
 
-export const vaciarCarrito = async () => {
-  const user = await getAuthUser();
-
-  if (!user) {
-    setGuestCart([]);
-    return;
-  }
-
-  const { error } = await insforge.database
-    .from("cart_items")
-    .delete()
-    .eq("usuario_id", user.id);
-  if (error) throw error;
+// Resend verification code
+export const reenviarVerificacion = async (email) => {
+  const { error } = await insforge.auth.resendVerificationEmail({
+    email,
+    redirectTo: window.location.origin + "/login",
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
 };
 
-export const syncGuestCart = async (userId) => {
-  const guestCart = getGuestCart();
-  if (!guestCart.length || !userId) return;
+// Sign out
+export const cerrarSesion = async () => {
+  await insforge.auth.signOut();
+};
 
-  for (const item of guestCart) {
-    const { data: existing } = await insforge.database
-      .from("cart_items")
-      .select()
-      .eq("producto_id", item.producto_id)
-      .eq("usuario_id", userId)
-      .single();
-    if (existing) {
-      await insforge.database
-        .from("cart_items")
-        .update({ cantidad: existing.cantidad + item.cantidad })
-        .eq("id", existing.id);
-    } else {
-      await insforge.database
-        .from("cart_items")
-        .insert({ producto_id: item.producto_id, cantidad: item.cantidad, usuario_id: userId });
-    }
-  }
+// Send password reset email
+export const enviarRecuperacion = async (correo) => {
+  const { error } = await insforge.auth.sendResetPasswordEmail({
+    email: correo,
+    redirectTo: window.location.origin + "/reset-password",
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+};
 
-  localStorage.removeItem(GUEST_CART_KEY);
-  window.dispatchEvent(new Event("guest-cart-updated"));
+// Reset password with code
+export const restablecerPassword = async (email, code, newPassword) => {
+  const { data, error: exchangeError } =
+    await insforge.auth.exchangeResetPasswordToken({ email, code });
+  if (exchangeError) return { ok: false, error: exchangeError.message };
+
+  const { error: resetError } = await insforge.auth.resetPassword({
+    newPassword,
+    otp: data.token,
+  });
+  if (resetError) return { ok: false, error: resetError.message };
+  return { ok: true };
+};
+
+// Google OAuth sign-in
+export const iniciarSesionGoogle = async () => {
+  const { error } = await insforge.auth.signInWithOAuth("google", {
+    redirectTo: window.location.origin + "/",
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+};
+
+// Update user profile
+export const actualizarPerfil = async (cambios) => {
+  const payload = { ...cambios };
+  if (payload.name && !payload.nombre) payload.nombre = payload.name;
+  if (payload.nombre && !payload.name) payload.name = payload.nombre;
+
+  const { error } = await insforge.auth.setProfile(payload);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+};
+
+// Change password (requires current password re-auth)
+export const cambiarPassword = async (currentPassword, newPassword) => {
+  const { error } = await insforge.auth.updatePassword({
+    currentPassword,
+    newPassword,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+};
+
+// Get current user (from SDK session)
+export const usuarioActual = async () => {
+  const { data, error } = await insforge.auth.getCurrentUser();
+  if (error || !data?.user) return null;
+  return data.user;
+};
+
+// Check if user is logged in
+export const estaLogueado = async () => {
+  const user = await usuarioActual();
+  return user !== null;
 };
